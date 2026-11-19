@@ -1,5 +1,16 @@
 "use client";
 
+function Flag() {
+  return (
+    <svg width="18" height="13" viewBox="0 0 18 13" aria-hidden="true">
+      <rect width="18" height="13" rx="2" fill="#198A43" />
+      <rect x="12.2" width="1.7" height="13" fill="#EF7D00" />
+      <rect x="13.9" width="1.7" height="13" fill="#111111" />
+      <rect x="15.6" width="2.4" height="13" fill="#DE2010" />
+    </svg>
+  );
+}
+
 export function PhoneField({
   value,
   onChange,
@@ -13,7 +24,10 @@ export function PhoneField({
     <label className="field">
       <span>{label}</span>
       <span className="phone-box">
-        <b>+260</b>
+        <span className="flag">
+          <Flag />
+          +260
+        </span>
         <input
           inputMode="numeric"
           autoComplete="tel"

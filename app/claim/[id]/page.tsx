@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { Check } from "lucide-react";
 import { api } from "@/components/api";
 import { Brand } from "@/components/brand";
 import { fullPhone, PhoneField } from "@/components/phone-field";
@@ -68,29 +69,42 @@ export default function ClaimPage() {
   }
 
   return (
-    <main className="auth" data-screen="claim">
-      <Brand light />
-      <p className="eyebrow" style={{ color: "#e7b48a" }}>
+    <main className="gate rise" data-screen="claim">
+      <Brand />
+      <p className="kicker" style={{ marginTop: 28 }}>
         Claim
       </p>
+      {!claim && !error ? (
+        <div aria-busy="true" style={{ marginTop: 18 }}>
+          <div className="skel" style={{ height: 48, width: "60%" }} />
+          <div className="skel" style={{ height: 14, marginTop: 12 }} />
+          <div className="skel" style={{ height: 14, marginTop: 8, width: "80%" }} />
+          <p className="note" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>
+            Opening claim…
+          </p>
+        </div>
+      ) : null}
       {claim ? (
         <>
-          <h1 style={{ fontSize: 48, margin: "8px 0" }}>
+          <h1 className="display" style={{ fontSize: 48, margin: "8px 0" }}>
             {claim.amount} {claim.asset}
           </h1>
-          <p className="muted">
+          <p className="lead">
             {claim.senderMasked} sent this to {claim.recipientMasked}. Verify the number and Lipila creates a Stellar wallet with sponsored reserves, then claims the balance.
           </p>
         </>
-      ) : (
-        <h1 style={{ fontSize: 40 }}>Opening claim…</h1>
-      )}
+      ) : null}
       {claim && claim.status !== "open" ? <p className="note">This claim is {claim.status}.</p> : null}
       {done ? (
         <div className="stack" style={{ marginTop: 18 }}>
-          <div className="demo-code">
-            It&apos;s in your wallet.
-            <strong style={{ letterSpacing: "-0.03em", fontSize: 28 }}>Sponsored, then claimed.</strong>
+          <div className="card" style={{ textAlign: "center" }}>
+            <div className="check">
+              <Check size={22} />
+            </div>
+            <div className="demo-code" style={{ background: "transparent", border: 0, padding: 0 }}>
+              It&apos;s in your wallet.
+              <strong style={{ letterSpacing: "-0.03em", fontSize: 28 }}>Sponsored, then claimed.</strong>
+            </div>
           </div>
           <Link className="btn copper" href="/" style={{ textAlign: "center", textDecoration: "none" }}>
             Go to Lipila
@@ -107,7 +121,7 @@ export default function ClaimPage() {
               </div>
               <label className="field">
                 <span>One-time code</span>
-                <input inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} />
+                <input className="code-input" inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} />
               </label>
             </>
           ) : null}

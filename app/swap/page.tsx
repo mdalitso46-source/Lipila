@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowLeftRight, Check } from "lucide-react";
 import { api } from "@/components/api";
 import { Shell } from "@/components/shell";
 import type { AssetCode } from "@/lib/money";
@@ -59,29 +60,47 @@ export default function SwapPage() {
 
   return (
     <Shell>
-      <main data-screen="swap">
-        <p className="eyebrow">Swap</p>
-        <h1 className="h1" style={{ fontSize: 40, marginTop: 6 }}>
+      <main data-screen="swap" className="rise">
+        <p className="kicker">Swap</p>
+        <h1 className="title" style={{ fontSize: 32 }}>
           One tap on the DEX.
         </h1>
         <p className="note">Path payments on the Stellar testnet order book. USDC stays $1. XLM price moves.</p>
         {result ? (
-          <section className="panel stack" style={{ marginTop: 16 }}>
-            <strong className="h1" style={{ fontSize: 36 }}>
+          <section className="receipt stack" style={{ marginTop: 16, textAlign: "left" }}>
+            <div className="check">
+              <Check size={22} />
+            </div>
+            <span className="pill neutral">Swap</span>
+            <strong className="title" style={{ fontSize: 28, textAlign: "center" }}>
               {result.sourceAmount} {result.from} → {result.destinationAmount} {result.to}
             </strong>
-            <p className="note">Quoted rate was 1 {result.from} ≈ {result.rate} {result.to}. The explorer shows the amount that landed.</p>
-            <a href={result.expertUrl}>View on stellar.expert</a>
+            <p className="note" style={{ textAlign: "center" }}>
+              Quoted rate was 1 {result.from} ≈ {result.rate} {result.to}. The explorer shows the amount that landed.
+            </p>
+            <a className="link-row" href={result.expertUrl}>
+              View on stellar.expert
+            </a>
             <button className="btn secondary" type="button" onClick={() => setResult(null)}>
               Swap again
             </button>
           </section>
         ) : (
           <form className="stack" onSubmit={submit} style={{ marginTop: 16 }}>
-            <div className="panel">
-              <span className="label">From {from}</span>
-              <input className="amount-input" inputMode="decimal" value={amount} onChange={(event) => { setAmount(event.target.value); setQuote(null); }} />
-            </div>
+            <label className="field">
+              <span>From {from}</span>
+              <span className="amount-wrap">
+                <input
+                  className="amount-input"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(event) => {
+                    setAmount(event.target.value);
+                    setQuote(null);
+                  }}
+                />
+              </span>
+            </label>
             <button
               className="btn secondary"
               type="button"
@@ -91,11 +110,13 @@ export default function SwapPage() {
                 setResult(null);
               }}
             >
-              Flip to {to} → {from}
+              <ArrowLeftRight size={16} /> Flip to {to} → {from}
             </button>
-            <div className="panel">
+            <div className="card">
               <span className="label">To {to}</span>
-              <strong className="h1" style={{ fontSize: 36 }}>{quote ? quote.destinationDisplay : "—"}</strong>
+              <strong className="title" style={{ fontSize: 36, display: "block", marginTop: 4 }}>
+                {quote ? quote.destinationDisplay : "—"}
+              </strong>
               <p className="note">{quote ? quote.summary : "Get a quote before you swap."}</p>
             </div>
             {error ? <p className="error">{error}</p> : null}

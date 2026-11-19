@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 import { api } from "@/components/api";
 import { fullPhone, PhoneField } from "@/components/phone-field";
 import { Shell } from "@/components/shell";
+import { formatPhone } from "@/lib/phone";
 import type { AssetCode } from "@/lib/money";
 
 type Receipt = {
@@ -25,6 +27,7 @@ export default function SendPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -44,34 +47,47 @@ export default function SendPage() {
 
   return (
     <Shell>
-      <main data-screen="send">
-        <p className="eyebrow">Send</p>
-        <h1 className="h1" style={{ fontSize: 40, marginTop: 6 }}>
+      <main data-screen="send" className="rise">
+        <p className="kicker">Send</p>
+        <h1 className="title" style={{ fontSize: 32 }}>
           To a number.
         </h1>
         {receipt ? (
-          <section className="slip stack" data-screen="receipt" style={{ marginTop: 18 }}>
-            <span className="label">{receipt.mode === "payment" ? "Paid on Stellar" : "Waiting to be claimed"}</span>
-            <strong className="h1" style={{ fontSize: 42 }}>
+          <section className="receipt stack" data-screen="receipt" style={{ marginTop: 18, textAlign: "left" }}>
+            <div className="check">
+              <Check size={22} />
+            </div>
+            <span className={receipt.mode === "payment" ? "pill in" : "pill wait"}>
+              {receipt.mode === "payment" ? "Paid on Stellar" : "Waiting to be claimed"}
+            </span>
+            <div className="money" style={{ textAlign: "center" }}>
               {receipt.amount} {receipt.asset}
-            </strong>
+            </div>
+            <p className="note" style={{ textAlign: "center" }}>
+              To {formatPhone(receipt.recipientPhone)}
+            </p>
             <p className="note">
               {receipt.mode === "payment"
                 ? "They already had a Lipila wallet, so this was a normal payment."
                 : "No wallet yet. We created a claimable balance they can take after verifying their number. You can reclaim it after 7 days."}
             </p>
-            <a href={receipt.expertUrl}>View on stellar.expert</a>
+            <a className="link-row" href={receipt.expertUrl}>
+              View on stellar.expert
+            </a>
             {receipt.smsPreview ? <div className="sms">{receipt.smsPreview}</div> : null}
             {receipt.claimUrl ? (
               <button
                 className="btn secondary"
                 type="button"
-                onClick={() => navigator.clipboard.writeText(receipt.claimUrl || "")}
+                onClick={() => {
+                  void navigator.clipboard.writeText(receipt.claimUrl || "");
+                  setCopied(true);
+                }}
               >
-                Copy claim link
+                <Copy size={16} /> {copied ? "Copied" : "Copy claim link"}
               </button>
             ) : null}
-            <button className="btn" type="button" onClick={() => setReceipt(null)}>
+            <button className="btn" type="button" onClick={() => { setReceipt(null); setCopied(false); }}>
               Send another
             </button>
           </section>
@@ -79,9 +95,11 @@ export default function SendPage() {
           <form className="stack" onSubmit={submit} style={{ marginTop: 18 }}>
             <label className="field">
               <span>Amount</span>
-              <input className="amount-input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
+              <span className="amount-wrap">
+                <input className="amount-input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
+              </span>
             </label>
-            <div className="toggle" role="group" aria-label="Asset">
+            <div className="seg" role="group" aria-label="Asset">
               {(["USDC", "XLM"] as AssetCode[]).map((code) => (
                 <button key={code} type="button" aria-pressed={asset === code} onClick={() => setAsset(code)}>
                   {code === "USDC" ? "USDC · $1" : "XLM · moves"}

@@ -126,6 +126,8 @@ The open claim page screenshot is a separate 1 USDC claimable balance: https://s
 
 ### Screens
 
+![Landing](evidence/00-landing.png)
+
 ![Sign in](evidence/01-login.png)
 
 ![Demo code on screen](evidence/02-otp.png)

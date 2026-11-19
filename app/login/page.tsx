@@ -45,13 +45,15 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="auth" data-screen="login">
-      <Brand light />
-      <p className="eyebrow" style={{ color: "#e7b48a" }}>
+    <main className="gate rise" data-screen="login">
+      <Brand />
+      <p className="kicker" style={{ marginTop: 28 }}>
         Zambia · Stellar testnet
       </p>
-      <h1 style={{ fontSize: 52, margin: "10px 0 8px" }}>Pay with a phone number.</h1>
-      <p className="muted" style={{ marginTop: 0, lineHeight: 1.45 }}>
+      <h1 className="display" style={{ fontSize: 44, marginTop: 8 }}>
+        Pay with a phone number.
+      </h1>
+      <p className="lead">
         Lipila sends USDC or lumens to any Zambian mobile number. New numbers get a claim link. No app install on the other side.
       </p>
       <form className="stack" onSubmit={demoCode ? verify : requestCode} style={{ marginTop: 22 }}>
@@ -64,7 +66,7 @@ export default function LoginPage() {
             </div>
             <label className="field">
               <span>One-time code</span>
-              <input inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} placeholder="6 digits" />
+              <input className="code-input" inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} placeholder="6 digits" />
             </label>
           </>
         ) : null}

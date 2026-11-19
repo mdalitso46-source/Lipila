@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Fraunces, Outfit } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces" });
 
 export const metadata: Metadata = {
@@ -13,10 +13,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} ${fraunces.variable}`}>
-        <div className="stage">
-          <div className="device">{children}</div>
-        </div>
+      <body className={`${inter.variable} ${fraunces.variable}`}>
+        <div className="canvas">{children}</div>
       </body>
     </html>
   );

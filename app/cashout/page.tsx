@@ -55,18 +55,21 @@ export default function CashoutPage() {
 
   return (
     <Shell>
-      <main data-screen="cashout">
-        <p className="eyebrow">Cash out</p>
-        <h1 className="h1" style={{ fontSize: 40, marginTop: 6 }}>
+      <main data-screen="cashout" className="rise">
+        <p className="kicker">Cash out</p>
+        <h1 className="title" style={{ fontSize: 32 }}>
           To mobile money.
         </h1>
         <p className="note">
           Airtel Money and MTN MoMo are the labels. The rails are SEP-24 against the Stellar test anchor at testanchor.stellar.org. Nothing here pays real kwacha.
         </p>
         {flow ? (
-          <section className="panel stack" style={{ marginTop: 16 }} data-screen="cashout-status">
+          <section className="card stack" style={{ marginTop: 16 }} data-screen="cashout-status">
+            <span className={flow.done ? "pill in" : "pill wait plain"}>
+              {flow.done ? "Completed" : (flow.status || "In progress").replaceAll("_", " ")}
+            </span>
             <strong>{flow.providerName}</strong>
-            <span className="h1" style={{ fontSize: 36 }}>
+            <span className="title" style={{ fontSize: 36 }}>
               {flow.amount} {flow.asset}
             </span>
             {flow.mode === "demo" ? (
@@ -109,9 +112,11 @@ export default function CashoutPage() {
             </div>
             <label className="field">
               <span>Amount (1 to 10, test anchor limit)</span>
-              <input className="amount-input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
+              <span className="amount-wrap">
+                <input className="amount-input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
+              </span>
             </label>
-            <div className="toggle" role="group" aria-label="Asset">
+            <div className="seg" role="group" aria-label="Asset">
               {(["USDC", "XLM"] as AssetCode[]).map((code) => (
                 <button key={code} type="button" aria-pressed={asset === code} onClick={() => setAsset(code)}>
                   {code}
