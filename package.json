@@ -1,0 +1,39 @@
+{
+  "name": "lipila",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Send USDC or XLM to a Zambian phone number on Stellar testnet.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdalitso46-source/Lipila.git"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@netlify/database": "^2.0.3",
+    "@stellar/stellar-sdk": "^17.4.0",
+    "next": "^15.5.29",
+    "pg": "^8.23.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
+    "postcss": "^8.5.33",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.1"
+  }
+}

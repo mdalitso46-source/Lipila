@@ -1,0 +1,72 @@
+{
+  "network": "Stellar testnet",
+  "usdcIssuer": "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+  "wallets": {
+    "alice": {
+      "phone": "+260979037501",
+      "publicKey": "GCEW2ARI6IOY5IVM6BKYA33XPMUTRWXL3UOX3P7YXSQQEP2Y7QWDUKPK"
+    },
+    "brian": {
+      "phone": "+260969037501",
+      "publicKey": "GBKBRSUNJVS4L522Z7UA3NJO5QVT4V6GQ5IKQT44X5GFTUCUD5ZUN66Q"
+    },
+    "chipo": {
+      "phone": "+260779037501",
+      "publicKey": "GDGWM322ATKDHY5HYZTEXGV3DOP65MVJDXMBABZRGYB5USCC6A43RPRI"
+    }
+  },
+  "transactions": [
+    {
+      "step": "Friendbot funded Alice with test XLM",
+      "hash": "0cfcb0741322781057e111fc66854438915d3f36b5e61eec85e84eefdaa53f4b",
+      "url": "https://stellar.expert/explorer/testnet/tx/0cfcb0741322781057e111fc66854438915d3f36b5e61eec85e84eefdaa53f4b"
+    },
+    {
+      "step": "Alice opened a Circle USDC trustline",
+      "hash": "df4c5396afbd890aa124e9bd82fd8047e62a29f83cfc5468fad8ad330b3828e7",
+      "url": "https://stellar.expert/explorer/testnet/tx/df4c5396afbd890aa124e9bd82fd8047e62a29f83cfc5468fad8ad330b3828e7"
+    },
+    {
+      "step": "Path payment bought Alice starter USDC (20 XLM)",
+      "hash": "dde20ee43ca962c6692888efb44169a04dc18b965d45aaa71f241528fd34c284",
+      "url": "https://stellar.expert/explorer/testnet/tx/dde20ee43ca962c6692888efb44169a04dc18b965d45aaa71f241528fd34c284"
+    },
+    {
+      "step": "Payment of 5 USDC from Alice to Brian, who already had a wallet",
+      "hash": "94c745c9799f75525b264e4bbcae18267a7cd4f2cfef67ca35bd47fd833aa209",
+      "url": "https://stellar.expert/explorer/testnet/tx/94c745c9799f75525b264e4bbcae18267a7cd4f2cfef67ca35bd47fd833aa209"
+    },
+    {
+      "step": "Claimable balance of 4 USDC for Chipo, who had no wallet",
+      "hash": "0f49bd972dc5435c3edb913c9146eb0db0da7d71b2dabd5c036ea3cf91c7d2a6",
+      "url": "https://stellar.expert/explorer/testnet/tx/0f49bd972dc5435c3edb913c9146eb0db0da7d71b2dabd5c036ea3cf91c7d2a6"
+    },
+    {
+      "step": "Sponsored account creation, USDC trustline, and claim into Chipo's wallet",
+      "hash": "bc07f38ed770355d9d2ecffe867851f9a83286e47e7ce8a080d95e909625fbf0",
+      "url": "https://stellar.expert/explorer/testnet/tx/bc07f38ed770355d9d2ecffe867851f9a83286e47e7ce8a080d95e909625fbf0"
+    },
+    {
+      "step": "Path payment swapped 10 XLM for about 7.13 USDC",
+      "hash": "0daed7aba466a0b390b6496b7150ae2af8417f2571ce3d32df049bda5a8aa3e9",
+      "url": "https://stellar.expert/explorer/testnet/tx/0daed7aba466a0b390b6496b7150ae2af8417f2571ce3d32df049bda5a8aa3e9"
+    },
+    {
+      "step": "SEP-24 withdrawal payment of 2 USDC to the Stellar test anchor",
+      "hash": "a4e5366bb0846fb19979d9100095b8592e1eb9f591279734dce0addeec54f397",
+      "url": "https://stellar.expert/explorer/testnet/tx/a4e5366bb0846fb19979d9100095b8592e1eb9f591279734dce0addeec54f397",
+      "anchorTransaction": "9fcd2310-8834-496b-bad0-7051aea4cbcb",
+      "anchorStatus": "completed"
+    },
+    {
+      "step": "Second 5 USDC payment, shown in the send-receipt screenshot",
+      "hash": "21ea70dbacf1ae0bab9b37ee2481e35ace8ed7ed6c567afd3ec9523637128d7d",
+      "url": "https://stellar.expert/explorer/testnet/tx/21ea70dbacf1ae0bab9b37ee2481e35ace8ed7ed6c567afd3ec9523637128d7d"
+    },
+    {
+      "step": "Claimable balance of 1 USDC used for the open claim-page screenshot",
+      "hash": "9099cfbf242649465bb8b4125874e50ca31626f2bb4b0aa0e62fcab36aebc718",
+      "url": "https://stellar.expert/explorer/testnet/tx/9099cfbf242649465bb8b4125874e50ca31626f2bb4b0aa0e62fcab36aebc718"
+    }
+  ]
+}

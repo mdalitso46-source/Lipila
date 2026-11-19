@@ -1,0 +1,19 @@
+# Lipila on Netlify. Next.js is detected automatically; publish is the Next output.
+# @netlify/database in package.json provisions Netlify Database (Postgres).
+# Migrations in netlify/database/migrations are applied by the deploy, not by the app.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  DEMO_MODE = "true"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
