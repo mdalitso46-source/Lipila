@@ -2,27 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeftRight, Banknote, House, Send } from "lucide-react";
-import { Brand } from "./brand";
+import { ArrowLeftRight, ArrowUp, Banknote, House } from "lucide-react";
 
 const tabs = [
   { href: "/", label: "Home", icon: House },
-  { href: "/send", label: "Send", icon: Send },
+  { href: "/send", label: "Send", icon: ArrowUp },
   { href: "/swap", label: "Swap", icon: ArrowLeftRight },
-  { href: "/cashout", label: "Cash", icon: Banknote },
+  { href: "/cashout", label: "Cash out", icon: Banknote },
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   return (
     <div className="app">
-      <div className="scroll">
-        <header className="topbar">
-          <Brand />
-          <span className="pill">Testnet</span>
-        </header>
-        {children}
-      </div>
+      <div className="scroll">{children}</div>
       <nav className="nav" aria-label="Primary">
         {tabs.map((tab) => {
           const Icon = tab.icon;

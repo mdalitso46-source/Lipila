@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Check } from "lucide-react";
 import { api } from "@/components/api";
-import { Brand } from "@/components/brand";
+import { grouped } from "@/components/format";
+import { Wordmark } from "@/components/logo";
 import { fullPhone, PhoneField } from "@/components/phone-field";
 import type { AssetCode } from "@/lib/money";
 
@@ -69,27 +70,20 @@ export default function ClaimPage() {
   }
 
   return (
-    <main className="gate rise" data-screen="claim">
-      <Brand />
-      <p className="kicker" style={{ marginTop: 28 }}>
-        Claim
-      </p>
+    <main className="gate" data-screen="claim">
+      <Wordmark />
+      <p className="kicker" style={{ color: "#c86d3b", marginTop: 28 }}>Claim</p>
       {!claim && !error ? (
         <div aria-busy="true" style={{ marginTop: 18 }}>
-          <div className="skel" style={{ height: 48, width: "60%" }} />
+          <div className="skel" style={{ height: 48, width: "55%" }} />
           <div className="skel" style={{ height: 14, marginTop: 12 }} />
-          <div className="skel" style={{ height: 14, marginTop: 8, width: "80%" }} />
-          <p className="note" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>
-            Opening claim…
-          </p>
+          <p className="note" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>Opening claim…</p>
         </div>
       ) : null}
       {claim ? (
         <>
-          <h1 className="display" style={{ fontSize: 48, margin: "8px 0" }}>
-            {claim.amount} {claim.asset}
-          </h1>
-          <p className="lead">
+          <h1 className="display tnum">{grouped(claim.amount, 2)} {claim.asset}</h1>
+          <p className="note">
             {claim.senderMasked} sent this to {claim.recipientMasked}. Verify the number and Lipila creates a Stellar wallet with sponsored reserves, then claims the balance.
           </p>
         </>
@@ -97,18 +91,14 @@ export default function ClaimPage() {
       {claim && claim.status !== "open" ? <p className="note">This claim is {claim.status}.</p> : null}
       {done ? (
         <div className="stack" style={{ marginTop: 18 }}>
-          <div className="card" style={{ textAlign: "center" }}>
-            <div className="check">
-              <Check size={22} />
-            </div>
-            <div className="demo-code" style={{ background: "transparent", border: 0, padding: 0 }}>
+          <div className="card" style={{ textAlign: "center", padding: 18 }}>
+            <div className="ring"><Check size={26} /></div>
+            <div className="demo-code" style={{ background: "transparent", boxShadow: "none" }}>
               It&apos;s in your wallet.
-              <strong style={{ letterSpacing: "-0.03em", fontSize: 28 }}>Sponsored, then claimed.</strong>
+              <strong style={{ letterSpacing: "-0.03em", fontSize: 26 }}>Sponsored, then claimed.</strong>
             </div>
           </div>
-          <Link className="btn copper" href="/" style={{ textAlign: "center", textDecoration: "none" }}>
-            Go to Lipila
-          </Link>
+          <Link className="btn" href="/">Go to Lipila</Link>
         </div>
       ) : claim?.status === "open" ? (
         <form className="stack" style={{ marginTop: 18 }} onSubmit={demoCode ? verify : requestCode}>
@@ -121,12 +111,12 @@ export default function ClaimPage() {
               </div>
               <label className="field">
                 <span>One-time code</span>
-                <input className="code-input" inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} />
+                <input className="code-input tnum" inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} />
               </label>
             </>
           ) : null}
           {error ? <p className="error">{error}</p> : null}
-          <button className="btn copper" disabled={busy} type="submit">
+          <button className="btn" disabled={busy} type="submit">
             {busy ? "Creating your wallet…" : demoCode ? "Claim" : "Send code"}
           </button>
         </form>

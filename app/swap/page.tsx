@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeftRight, Check } from "lucide-react";
+import Link from "next/link";
+import { Check } from "lucide-react";
 import { api } from "@/components/api";
+import { grouped } from "@/components/format";
 import { Shell } from "@/components/shell";
 import type { AssetCode } from "@/lib/money";
 
@@ -60,69 +62,44 @@ export default function SwapPage() {
 
   return (
     <Shell>
-      <main data-screen="swap" className="rise">
-        <p className="kicker">Swap</p>
-        <h1 className="title" style={{ fontSize: 32 }}>
-          One tap on the DEX.
-        </h1>
+      <main data-screen="swap">
+        <div className="page-title" style={{ marginBottom: 10 }}>Move money</div>
+        <div className="tabs">
+          <Link href="/cashout">Cash out</Link>
+          <Link href="/swap" aria-current="page">Swap</Link>
+        </div>
         <p className="note">Path payments on the Stellar testnet order book. USDC stays $1. XLM price moves.</p>
         {result ? (
-          <section className="receipt stack" style={{ marginTop: 16, textAlign: "left" }}>
-            <div className="check">
-              <Check size={22} />
-            </div>
-            <span className="pill neutral">Swap</span>
-            <strong className="title" style={{ fontSize: 28, textAlign: "center" }}>
-              {result.sourceAmount} {result.from} → {result.destinationAmount} {result.to}
-            </strong>
-            <p className="note" style={{ textAlign: "center" }}>
-              Quoted rate was 1 {result.from} ≈ {result.rate} {result.to}. The explorer shows the amount that landed.
-            </p>
-            <a className="link-row" href={result.expertUrl}>
-              View on stellar.expert
-            </a>
-            <button className="btn secondary" type="button" onClick={() => setResult(null)}>
-              Swap again
+          <section className="receipt">
+            <div className="ring"><Check size={26} /></div>
+            <div className="kicker">Swapped</div>
+            <h2 className="tnum" style={{ fontSize: 28 }}>
+              {grouped(result.sourceAmount, 2)} {result.from} → {grouped(result.destinationAmount, 2)} {result.to}
+            </h2>
+            <p className="note">Quoted rate was 1 {result.from} ≈ {result.rate} {result.to}. The explorer shows the amount that landed.</p>
+            <a className="btn" href={result.expertUrl} style={{ marginTop: 12 }}>View on stellar.expert</a>
+            <button className="btn secondary" type="button" style={{ marginTop: 8 }} onClick={() => setResult(null)}>
+              Done
             </button>
           </section>
         ) : (
-          <form className="stack" onSubmit={submit} style={{ marginTop: 16 }}>
-            <label className="field">
-              <span>From {from}</span>
-              <span className="amount-wrap">
-                <input
-                  className="amount-input"
-                  inputMode="decimal"
-                  value={amount}
-                  onChange={(event) => {
-                    setAmount(event.target.value);
-                    setQuote(null);
-                  }}
-                />
-              </span>
-            </label>
-            <button
-              className="btn secondary"
-              type="button"
-              onClick={() => {
-                setFrom(to);
-                setQuote(null);
-                setResult(null);
-              }}
-            >
-              <ArrowLeftRight size={16} /> Flip to {to} → {from}
-            </button>
-            <div className="card">
-              <span className="label">To {to}</span>
-              <strong className="title" style={{ fontSize: 36, display: "block", marginTop: 4 }}>
-                {quote ? quote.destinationDisplay : "—"}
-              </strong>
-              <p className="note">{quote ? quote.summary : "Get a quote before you swap."}</p>
+          <form onSubmit={submit}>
+            <div className="send-card" style={{ marginTop: 12 }}>
+              <div className="k">You swap</div>
+              <input className="amount-input tnum" style={{ textAlign: "left", fontSize: 40 }} inputMode="decimal" aria-label="Amount" value={amount} onChange={(event) => { setAmount(event.target.value); setQuote(null); }} />
+              <div className="note">{from}</div>
             </div>
+            <div className="get-card" style={{ marginTop: 10 }}>
+              <div className="k">You receive about</div>
+              <div className="money tnum">{quote ? grouped(quote.destinationDisplay, 2) : "—"} {to}</div>
+              <div className="note" style={{ color: "rgba(247,248,246,.7)" }}>{quote ? quote.summary : "Show the testnet rate before you swap."}</div>
+            </div>
+            <div className="fee-row"><span>Network fee</span><b>Paid in XLM</b></div>
             {error ? <p className="error">{error}</p> : null}
-            <button className="btn secondary" type="button" onClick={() => refreshQuote()}>
-              Show rate
+            <button className="btn secondary" type="button" onClick={() => { setFrom(to); setQuote(null); }}>
+              Flip to {to} → {from}
             </button>
+            <button className="btn secondary" type="button" onClick={() => refreshQuote()}>Show rate</button>
             <button className="btn" disabled={busy} type="submit">
               {busy ? "Swapping…" : `Swap ${from} for ${to}`}
             </button>

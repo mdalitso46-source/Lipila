@@ -2,11 +2,11 @@
 
 function Flag() {
   return (
-    <svg width="18" height="13" viewBox="0 0 18 13" aria-hidden="true">
-      <rect width="18" height="13" rx="2" fill="#198A43" />
-      <rect x="12.2" width="1.7" height="13" fill="#EF7D00" />
-      <rect x="13.9" width="1.7" height="13" fill="#111111" />
-      <rect x="15.6" width="2.4" height="13" fill="#DE2010" />
+    <svg className="flag-svg" width="22" height="15" viewBox="0 0 22 15" aria-hidden="true">
+      <rect width="22" height="15" rx="2" fill="#198A43" />
+      <rect x="15" width="2.2" height="15" fill="#EF7D00" />
+      <rect x="17.2" width="2.2" height="15" fill="#111" />
+      <rect x="19.4" width="2.6" height="15" fill="#DE2010" />
     </svg>
   );
 }
@@ -22,13 +22,14 @@ export function PhoneField({
 }) {
   return (
     <label className="field">
-      <span>{label}</span>
+      {label ? <span>{label}</span> : null}
       <span className="phone-box">
         <span className="flag">
           <Flag />
           +260
         </span>
         <input
+          className="tnum"
           inputMode="numeric"
           autoComplete="tel"
           placeholder="97 123 4567"

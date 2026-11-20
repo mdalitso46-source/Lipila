@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { api } from "@/components/api";
+import { grouped } from "@/components/format";
 import { Shell } from "@/components/shell";
 import type { AssetCode } from "@/lib/money";
 
@@ -28,6 +30,11 @@ export default function CashoutPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [flow, setFlow] = useState<Started | null>(null);
+  const [phone, setPhone] = useState<string | null>(null);
+
+  useEffect(() => {
+    api<{ phoneDisplay: string }>("/api/me").then((data) => setPhone(data.phoneDisplay)).catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     if (!flow || flow.mode !== "sep24" || !flow.id || flow.done) return;
@@ -53,79 +60,84 @@ export default function CashoutPage() {
     }
   }
 
+  const providerName = provider === "airtel" ? "Airtel Money" : "MTN MoMo";
+
   return (
     <Shell>
-      <main data-screen="cashout" className="rise">
-        <p className="kicker">Cash out</p>
-        <h1 className="title" style={{ fontSize: 32 }}>
-          To mobile money.
-        </h1>
+      <main data-screen="cashout">
+        <div className="page-title" style={{ marginBottom: 10 }}>Move money</div>
+        <div className="tabs">
+          <Link href="/cashout" aria-current="page">Cash out</Link>
+          <Link href="/swap">Swap</Link>
+        </div>
         <p className="note">
           Airtel Money and MTN MoMo are the labels. The rails are SEP-24 against the Stellar test anchor at testanchor.stellar.org. Nothing here pays real kwacha.
         </p>
         {flow ? (
-          <section className="card stack" style={{ marginTop: 16 }} data-screen="cashout-status">
-            <span className={flow.done ? "pill in" : "pill wait plain"}>
-              {flow.done ? "Completed" : (flow.status || "In progress").replaceAll("_", " ")}
-            </span>
+          <section className="card stack" style={{ marginTop: 14, padding: 16 }} data-screen="cashout-status">
+            <span className={flow.done ? "tag" : "tag wait"}>{flow.done ? "Completed" : (flow.status || "In progress").replaceAll("_", " ")}</span>
             <strong>{flow.providerName}</strong>
-            <span className="title" style={{ fontSize: 36 }}>
-              {flow.amount} {flow.asset}
-            </span>
+            <span className="tnum" style={{ fontSize: 36, fontWeight: 700 }}>{grouped(flow.amount, 2)} {flow.asset}</span>
             {flow.mode === "demo" ? (
               <>
                 <p className="error">Test anchor did not start. This is a labelled demo of the cash-out step.</p>
                 <p className="note">{flow.message}</p>
                 <ol className="note">
-                  {flow.steps?.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
+                  {flow.steps?.map((step) => <li key={step}>{step}</li>)}
                 </ol>
               </>
             ) : (
               <>
                 <p className="note">Status: {flow.status}</p>
                 <p className="note">{flow.detail}</p>
-                {flow.interactiveUrl ? (
-                  <a href={flow.interactiveUrl} target="_blank" rel="noreferrer">
-                    Open the anchor form
-                  </a>
-                ) : null}
+                {flow.interactiveUrl ? <a href={flow.interactiveUrl} target="_blank" rel="noreferrer">Open the anchor form</a> : null}
                 {flow.expertUrl ? <a href={flow.expertUrl}>Withdrawal payment on stellar.expert</a> : null}
               </>
             )}
-            <button className="btn secondary" type="button" onClick={() => setFlow(null)}>
-              Start over
-            </button>
+            <button className="btn secondary" type="button" onClick={() => setFlow(null)}>Start over</button>
           </section>
         ) : (
-          <form className="stack" onSubmit={submit} style={{ marginTop: 16 }}>
-            <div className="providers">
+          <form onSubmit={submit}>
+            <div className="providers" style={{ marginTop: 14 }}>
               <button type="button" aria-pressed={provider === "airtel"} onClick={() => setProvider("airtel")}>
+                <div className="mark-a">A</div>
                 <strong>Airtel Money</strong>
-                <div className="note">Zambia</div>
+                <span>{provider === "airtel" ? "Selected" : "Zambia"}</span>
               </button>
               <button type="button" aria-pressed={provider === "mtn"} onClick={() => setProvider("mtn")}>
+                <div className="mark-m">M</div>
                 <strong>MTN MoMo</strong>
-                <div className="note">Zambia</div>
+                <span>{provider === "mtn" ? "Selected" : "Zambia"}</span>
+              </button>
+              <button type="button" disabled aria-disabled="true">
+                <div className="mark-z">Z</div>
+                <strong>Zamtel</strong>
+                <span>Not on this anchor</span>
               </button>
             </div>
-            <label className="field">
-              <span>Amount (1 to 10, test anchor limit)</span>
-              <span className="amount-wrap">
-                <input className="amount-input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
-              </span>
-            </label>
-            <div className="seg" role="group" aria-label="Asset">
-              {(["USDC", "XLM"] as AssetCode[]).map((code) => (
-                <button key={code} type="button" aria-pressed={asset === code} onClick={() => setAsset(code)}>
-                  {code}
-                </button>
-              ))}
+            <div className="send-card" style={{ marginTop: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div className="k">You send</div>
+                <button className="asset-chip" type="button" onClick={() => setAsset(asset === "USDC" ? "XLM" : "USDC")}>{asset}</button>
+              </div>
+              <input className="amount-input tnum" style={{ textAlign: "left", fontSize: 40 }} inputMode="decimal" aria-label="Amount (1 to 10, test anchor limit)" value={amount} onChange={(event) => setAmount(event.target.value)} />
             </div>
+            <div className="get-card" style={{ marginTop: 10 }}>
+              <div className="k">Anchor receives</div>
+              <div className="money tnum">{grouped(amount || "0", 2)} {asset}</div>
+              <div style={{ opacity: 0.75, fontSize: 13 }}>To {providerName}{phone ? ` · ${phone}` : ""} · testnet only</div>
+            </div>
+            <div className="fee-row"><span>Rate</span><b>Set by the test anchor</b></div>
+            <div className="fee-row"><span>Network fee</span><b>Paid in XLM</b></div>
+            <Link className="banner" href="/swap">
+              <div>
+                <b>Need to convert first?</b>
+                <span>Swap XLM and USDC on the testnet DEX</span>
+              </div>
+            </Link>
             {error ? <p className="error">{error}</p> : null}
-            <button className="btn" disabled={busy} type="submit">
-              {busy ? "Talking to the anchor…" : "Start cash out"}
+            <button className="btn" disabled={busy} type="submit" style={{ marginTop: 12 }}>
+              {busy ? "Talking to the anchor…" : `Cash out to ${providerName}`}
             </button>
           </form>
         )}

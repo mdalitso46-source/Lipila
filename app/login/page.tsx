@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/components/api";
-import { Brand } from "@/components/brand";
+import { Wordmark } from "@/components/logo";
 import { fullPhone, PhoneField } from "@/components/phone-field";
 
 export default function LoginPage() {
@@ -45,15 +45,13 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="gate rise" data-screen="login">
-      <Brand />
-      <p className="kicker" style={{ marginTop: 28 }}>
+    <main className="gate" data-screen="login">
+      <Wordmark />
+      <p className="kicker" style={{ color: "#c86d3b", marginTop: 28 }}>
         Zambia · Stellar testnet
       </p>
-      <h1 className="display" style={{ fontSize: 44, marginTop: 8 }}>
-        Pay with a phone number.
-      </h1>
-      <p className="lead">
+      <h1 className="display">Pay with a phone number.</h1>
+      <p className="note">
         Lipila sends USDC or lumens to any Zambian mobile number. New numbers get a claim link. No app install on the other side.
       </p>
       <form className="stack" onSubmit={demoCode ? verify : requestCode} style={{ marginTop: 22 }}>
@@ -66,12 +64,12 @@ export default function LoginPage() {
             </div>
             <label className="field">
               <span>One-time code</span>
-              <input className="code-input" inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} placeholder="6 digits" />
+              <input className="code-input tnum" inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} placeholder="6 digits" />
             </label>
           </>
         ) : null}
         {error ? <p className="error">{error}</p> : null}
-        <button className="btn copper" disabled={busy} type="submit">
+        <button className="btn" disabled={busy} type="submit">
           {busy ? "Working on Stellar…" : demoCode ? "Open my wallet" : "Text me a code"}
         </button>
       </form>

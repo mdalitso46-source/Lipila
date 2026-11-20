@@ -1,17 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ArrowDownLeft,
-  ArrowLeftRight,
-  ArrowUpRight,
-  Banknote,
-  CircleDollarSign,
-  ShieldCheck,
-  Sparkles,
-  Wallet,
-} from "lucide-react";
+import Link from "next/link";
+import { ArrowDownLeft, ArrowLeftRight, ArrowUp, Banknote, Clock } from "lucide-react";
 import { api } from "@/components/api";
+import { grouped, usd } from "@/components/format";
 import { Landing } from "@/components/landing";
 import { Shell } from "@/components/shell";
 import { relativeTime } from "@/components/time";
@@ -26,6 +19,7 @@ type Activity = {
   asset: AssetCode;
   amount: string;
   direction: "in" | "out";
+  counterparty?: string | null;
   txHash: string | null;
   createdAt: string;
 };
@@ -42,33 +36,24 @@ type Claim = {
 
 type Home = {
   phoneDisplay: string;
-  user: { publicKey: string };
+  user: { publicKey: string; phone?: string };
   balances: { usdc: string; xlm: string; xlmPrice: string; totalUsd: string };
   accountUrl: string;
   activities: Activity[];
   claims: Claim[];
 };
 
-function ActivityIcon({ kind, direction }: { kind?: string; direction: "in" | "out" }) {
-  if (kind === "swap") return <ArrowLeftRight size={16} />;
-  if (kind === "cashout") return <Banknote size={16} />;
-  if (kind === "trustline") return <ShieldCheck size={16} />;
-  if (kind === "fund" || kind === "faucet" || kind === "sponsor") return <Sparkles size={16} />;
-  if (direction === "in") return <ArrowDownLeft size={16} />;
-  return <ArrowUpRight size={16} />;
+function tagFor(kind: string | undefined, direction: "in" | "out") {
+  if (kind === "claimable") return { label: "Claimable", className: "tag wait", av: "av wait" };
+  if (kind === "cashout") return { label: "Cash out", className: "tag out", av: "av out" };
+  if (kind === "swap") return { label: "Swap", className: "tag", av: "av" };
+  if (direction === "in") return { label: "In", className: "tag", av: "av" };
+  return { label: "Sent", className: "tag", av: "av" };
 }
 
-function money(amount: string, asset: AssetCode) {
-  const value = Number(displayAmount(amount, asset));
-  return value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function pill(kind: string | undefined, direction: "in" | "out") {
-  if (kind === "claimable") return { label: "Pending", className: "pill wait" };
-  if (kind === "cashout") return { label: "Cash out", className: "pill out" };
-  if (kind === "swap") return { label: "Swap", className: "pill neutral" };
-  if (direction === "in") return { label: "In", className: "pill in" };
-  return { label: "Out", className: "pill out" };
+function initials(phone?: string | null) {
+  const digits = (phone || "").replace(/\D/g, "");
+  return digits.slice(-2) || "•";
 }
 
 export default function HomePage() {
@@ -112,135 +97,121 @@ export default function HomePage() {
   }, []);
 
   if (phase === "signedout") return <Landing />;
-
   if (phase === "loading") {
     return (
-      <div className="boot" data-screen="home">
-        <div className="skel" style={{ width: 120, height: 28 }} />
-        <div className="skel" style={{ height: 150, marginTop: 22, borderRadius: 22 }} />
-        <div className="skel" style={{ height: 64, marginTop: 12 }} />
-        <div className="skel" style={{ height: 64, marginTop: 8 }} />
+      <div className="boot" data-screen="home" style={{ width: "min(430px, 100%)", minHeight: "100dvh", padding: 22, background: "#f7f8f6" }}>
+        <div className="skel" style={{ width: 140, height: 28 }} />
+        <div className="skel" style={{ height: 168, marginTop: 18, borderRadius: 26 }} />
+        <div className="skel" style={{ height: 64, marginTop: 16 }} />
       </div>
     );
   }
 
-  const xlmUsd =
-    home && Number(home.balances.xlmPrice) > 0
-      ? (Number(home.balances.xlm) * Number(home.balances.xlmPrice)).toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })
-      : null;
+  const open = home?.claims.filter((claim) => claim.status === "open") ?? [];
+  const xlmUsd = home && Number(home.balances.xlmPrice) > 0 ? Number(home.balances.xlm) * Number(home.balances.xlmPrice) : null;
 
   return (
     <Shell>
-      <main data-screen="home" className="rise">
-        <p className="kicker">Muli bwanji</p>
-        <h1 className="title" style={{ fontSize: 28 }}>
-          {home ? home.phoneDisplay : "Your wallet"}
-        </h1>
-        {error ? <p className="error" style={{ marginTop: 16 }}>{error}</p> : null}
-        {note ? <p className="note" style={{ marginTop: 12 }}>{note}</p> : null}
+      <main data-screen="home">
+        <header className="home-head">
+          <div>
+            <div className="hello">Muli bwanji</div>
+            <b>Your wallet</b>
+          </div>
+          <span className="avatar tnum">{initials(home?.user.phone || home?.phoneDisplay)}</span>
+        </header>
+        {error ? <p className="error">{error}</p> : null}
+        {note ? <p className="note">{note}</p> : null}
         <section className="balance">
-          <div className="label">Estimated value</div>
-          <div className="money">${home ? Number(home.balances.totalUsd).toFixed(2) : "—"}</div>
-          <p className="note">
-            USDC stays $1. XLM follows the testnet DEX
-            {home?.balances.xlmPrice ? ` (1 XLM ≈ $${home.balances.xlmPrice})` : ""}.
-          </p>
+          <span className="arc" />
+          <span className="arc2" />
+          <div className="label">Total balance</div>
+          <div className="money tnum">{home ? usd(home.balances.totalUsd) : "—"}</div>
+          {home ? (
+            <span className="phone-pill tnum">
+              <span className="live" />
+              {home.phoneDisplay}
+            </span>
+          ) : null}
+          <div className="splits">
+            <div className="split">
+              <div className="k">USDC</div>
+              <div className="v tnum">{home ? usd(displayAmount(home.balances.usdc, "USDC")) : "…"}</div>
+            </div>
+            <div className="split">
+              <div className="k">XLM{xlmUsd != null ? ` · ${usd(xlmUsd)}` : ""}</div>
+              <div className="v tnum">{home ? grouped(displayAmount(home.balances.xlm, "XLM"), 2) : "…"}</div>
+            </div>
+          </div>
         </section>
-        <div className="assets">
-          <div className="asset">
-            <span className="asset-ico">
-              <CircleDollarSign size={18} />
-            </span>
-            <div>
-              <b>USDC</b>
-              <span>Circle testnet dollar</span>
-            </div>
-            <div className="end">
-              <b>{home ? money(home.balances.usdc, "USDC") : "…"}</b>
-              <span>USD {home ? money(home.balances.usdc, "USDC") : ""}</span>
-            </div>
-          </div>
-          <div className="asset">
-            <span className="asset-ico xlm">
-              <Sparkles size={18} />
-            </span>
-            <div>
-              <b>XLM</b>
-              <span>Lumens</span>
-            </div>
-            <div className="end">
-              <b>{home ? money(home.balances.xlm, "XLM") : "…"}</b>
-              <span>{xlmUsd ? `≈ $${xlmUsd}` : "Testnet price"}</span>
-            </div>
-          </div>
-        </div>
-        {home ? (
-          <a className="link-row" href={home.accountUrl}>
-            <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
-              <Wallet size={16} /> Wallet on stellar.expert
-            </span>
-            <ArrowUpRight size={16} />
+        <div className="actions">
+          <Link className="act" href="/send">
+            <i><ArrowUp size={20} /></i>
+            Send
+          </Link>
+          <a className="act claim" href="#pending">
+            <i><ArrowDownLeft size={20} /></i>
+            Claim
+            {open.length ? <span className="badge">{open.length}</span> : null}
           </a>
-        ) : null}
+          <Link className="act" href="/swap">
+            <i><ArrowLeftRight size={20} /></i>
+            Swap
+          </Link>
+          <Link className="act" href="/cashout">
+            <i><Banknote size={20} /></i>
+            Cash out
+          </Link>
+        </div>
+        {open.length ? (
+          <a className="banner" id="pending" href={open[0].txHash ? expertTx(open[0].txHash) : "#pending"}>
+            <Clock size={18} color="#C86D3B" />
+            <div>
+              <b>
+                {open.length} payment{open.length === 1 ? "" : "s"} waiting to be claimed
+              </b>
+              <span>
+                {formatPhone(open[0].recipientPhone)} · until {new Date(open[0].expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+              </span>
+            </div>
+            <strong className="tnum">{grouped(open[0].amount, 2)} {open[0].asset}</strong>
+          </a>
+        ) : (
+          <div id="pending" />
+        )}
         <div className="section-h">Activity</div>
-        {home && home.activities.length === 0 ? (
-          <div className="empty">
-            <Wallet size={22} />
-            <b>No activity yet</b>
-            Payments you send will show up here.
-          </div>
-        ) : null}
+        {home && home.activities.length === 0 ? <div className="empty">Payments you send will show up here.</div> : null}
         {home?.activities.map((item) => {
           const href = item.txHash ? expertTx(item.txHash) : undefined;
-          const status = pill(item.kind, item.direction);
+          const tag = tagFor(item.kind, item.direction);
           const body = (
             <>
-              <span className="tx-ico">
-                <ActivityIcon kind={item.kind} direction={item.direction} />
-              </span>
+              <span className={tag.av}>{initials(item.counterparty)}</span>
               <span className="tx-copy">
                 <strong>{item.title}</strong>
-                <span className="tx-meta">
-                  <time dateTime={item.createdAt} title={new Date(item.createdAt).toLocaleString("en-GB")}>
-                    {relativeTime(item.createdAt)}
-                  </time>
-                  <span className={status.className}>{status.label}</span>
-                </span>
+                <em>
+                  <time dateTime={item.createdAt}>{relativeTime(item.createdAt)}</time>
+                  <span className={tag.className}>{tag.label}</span>
+                </em>
               </span>
-              <strong className={item.direction === "in" ? "tx-amt in" : "tx-amt"}>
+              <span className={item.direction === "in" ? "tx-amt in tnum" : "tx-amt tnum"}>
                 {item.direction === "in" ? "+" : "−"}
-                {item.amount} {item.asset}
-              </strong>
+                {grouped(item.amount, 2)}
+                <small>{item.asset}</small>
+              </span>
             </>
           );
           return href ? (
-            <a className="tx" key={item.id} href={href}>
-              {body}
-            </a>
+            <a className="tx" key={item.id} href={href}>{body}</a>
           ) : (
-            <div className="tx" key={item.id}>
-              {body}
-            </div>
+            <div className="tx" key={item.id}>{body}</div>
           );
         })}
-        {home?.claims.some((claim) => claim.status === "open") ? (
-          <section className="card stack" style={{ marginTop: 16 }}>
-            <strong>Waiting to be claimed</strong>
-            {home.claims
-              .filter((claim) => claim.status === "open")
-              .map((claim) => (
-                <div key={claim.id}>
-                  <div>
-                    {claim.amount} {claim.asset} for {formatPhone(claim.recipientPhone)}
-                  </div>
-                  <p className="note">You can reclaim after {new Date(claim.expiresAt).toLocaleString("en-GB")}.</p>
-                  {claim.txHash ? <a href={expertTx(claim.txHash)}>Creation transaction</a> : null}
-                </div>
-              ))}
-          </section>
+        {home ? (
+          <a className="fee-row" href={home.accountUrl}>
+            <span>Wallet on stellar.expert</span>
+            <span>View</span>
+          </a>
         ) : null}
       </main>
     </Shell>

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Copy } from "lucide-react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Check, ChevronLeft, Copy } from "lucide-react";
 import { api } from "@/components/api";
+import { grouped } from "@/components/format";
 import { fullPhone, PhoneField } from "@/components/phone-field";
 import { Shell } from "@/components/shell";
 import { formatPhone } from "@/lib/phone";
-import type { AssetCode } from "@/lib/money";
+import { displayAmount, type AssetCode } from "@/lib/money";
 
 type Receipt = {
   mode: "payment" | "claimable";
@@ -20,6 +22,8 @@ type Receipt = {
   expiresAt?: string;
 };
 
+type Activity = { kind?: string; counterparty?: string | null; asset?: AssetCode };
+
 export default function SendPage() {
   const [national, setNational] = useState("");
   const [amount, setAmount] = useState("5");
@@ -28,6 +32,30 @@ export default function SendPage() {
   const [error, setError] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [copied, setCopied] = useState(false);
+  const [contacts, setContacts] = useState<string[]>([]);
+  const [known, setKnown] = useState<Set<string>>(new Set());
+  const [available, setAvailable] = useState<string | null>(null);
+
+  useEffect(() => {
+    api<{ activities: Activity[]; balances: { usdc: string; xlm: string } }>("/api/me")
+      .then((data) => {
+        const seen = new Set<string>();
+        const list: string[] = [];
+        const paid = new Set<string>();
+        for (const item of data.activities) {
+          if (!item.counterparty) continue;
+          if (!seen.has(item.counterparty)) {
+            seen.add(item.counterparty);
+            list.push(item.counterparty);
+          }
+          if (item.kind === "send" || item.kind === "receive") paid.add(item.counterparty);
+        }
+        setContacts(list.slice(0, 6));
+        setKnown(paid);
+        setAvailable(asset === "USDC" ? data.balances.usdc : data.balances.xlm);
+      })
+      .catch(() => undefined);
+  }, [asset]);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
@@ -45,73 +73,127 @@ export default function SendPage() {
     }
   }
 
+  const digits = national.replace(/\D/g, "");
+  const ready = digits.length >= 9;
+  const phone = ready ? fullPhone(national) : "";
+  const registered = phone ? known.has(phone) : false;
+
   return (
     <Shell>
-      <main data-screen="send" className="rise">
-        <p className="kicker">Send</p>
-        <h1 className="title" style={{ fontSize: 32 }}>
-          To a number.
-        </h1>
+      <main data-screen="send">
+        <div className="subnav">
+          <Link className="icon-btn" href="/" aria-label="Back">
+            <ChevronLeft size={18} />
+          </Link>
+          <div className="page-title">Send</div>
+          <span className="nav-ghost" style={{ width: 36 }} />
+        </div>
         {receipt ? (
-          <section className="receipt stack" data-screen="receipt" style={{ marginTop: 18, textAlign: "left" }}>
-            <div className="check">
-              <Check size={22} />
+          <section className="receipt" data-screen="receipt">
+            <div className="ring">
+              <Check size={26} />
             </div>
-            <span className={receipt.mode === "payment" ? "pill in" : "pill wait"}>
-              {receipt.mode === "payment" ? "Paid on Stellar" : "Waiting to be claimed"}
-            </span>
-            <div className="money" style={{ textAlign: "center" }}>
-              {receipt.amount} {receipt.asset}
+            <div className="kicker">{receipt.mode === "payment" ? "Paid on Stellar" : "Held on Stellar"}</div>
+            <h2 className="tnum">{grouped(receipt.amount, 2)} {receipt.asset}</h2>
+            <p className="note">{receipt.mode === "payment" ? "Instant payment" : "USDC · Claimable escrow"}</p>
+            <div className="card" style={{ marginTop: 16 }}>
+              <div className="kv"><span>Recipient</span><b className="tnum">{formatPhone(receipt.recipientPhone)}</b></div>
+              <div className="kv"><span>Delivery</span><b>{receipt.mode === "payment" ? "Instant" : "Claimable · 7-day escrow"}</b></div>
+              {receipt.expiresAt ? (
+                <div className="kv"><span>Claim window</span><b>Expires {new Date(receipt.expiresAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</b></div>
+              ) : null}
+              <div className="kv">
+                <span>Stellar tx</span>
+                <button
+                  className="hash"
+                  type="button"
+                  onClick={() => navigator.clipboard.writeText(receipt.txHash)}
+                >
+                  {receipt.txHash.slice(0, 6)}…{receipt.txHash.slice(-4)}
+                </button>
+              </div>
+              <div className="kv"><span>Network fee</span><b>Paid in XLM</b></div>
             </div>
-            <p className="note" style={{ textAlign: "center" }}>
-              To {formatPhone(receipt.recipientPhone)}
-            </p>
-            <p className="note">
+            <p className="note" style={{ marginTop: 12 }}>
               {receipt.mode === "payment"
                 ? "They already had a Lipila wallet, so this was a normal payment."
                 : "No wallet yet. We created a claimable balance they can take after verifying their number. You can reclaim it after 7 days."}
             </p>
-            <a className="link-row" href={receipt.expertUrl}>
-              View on stellar.expert
-            </a>
-            {receipt.smsPreview ? <div className="sms">{receipt.smsPreview}</div> : null}
-            {receipt.claimUrl ? (
-              <button
-                className="btn secondary"
-                type="button"
-                onClick={() => {
-                  void navigator.clipboard.writeText(receipt.claimUrl || "");
-                  setCopied(true);
-                }}
-              >
-                <Copy size={16} /> {copied ? "Copied" : "Copy claim link"}
+            {receipt.smsPreview ? <div className="demo-code" style={{ textAlign: "left", marginTop: 8 }}>{receipt.smsPreview}</div> : null}
+            <div className="stack" style={{ marginTop: 16 }}>
+              {receipt.claimUrl ? (
+                <button
+                  className="btn"
+                  type="button"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(receipt.claimUrl || "");
+                    setCopied(true);
+                  }}
+                >
+                  <Copy size={16} /> {copied ? "Link copied" : "Share claim link"}
+                </button>
+              ) : (
+                <a className="btn" href={receipt.expertUrl}>View on stellar.expert</a>
+              )}
+              {receipt.claimUrl ? <a className="fee-row" href={receipt.expertUrl}><span>View on stellar.expert</span></a> : null}
+              <button className="btn secondary" type="button" onClick={() => { setReceipt(null); setCopied(false); }}>
+                Done
               </button>
-            ) : null}
-            <button className="btn" type="button" onClick={() => { setReceipt(null); setCopied(false); }}>
-              Send another
-            </button>
+            </div>
           </section>
         ) : (
-          <form className="stack" onSubmit={submit} style={{ marginTop: 18 }}>
-            <label className="field">
-              <span>Amount</span>
-              <span className="amount-wrap">
-                <input className="amount-input" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} />
-              </span>
-            </label>
+          <form onSubmit={submit}>
+            {contacts.length ? (
+              <>
+                <div className="kicker">Recent</div>
+                <div className="contacts">
+                  {contacts.map((item) => (
+                    <button
+                      key={item}
+                      className="contact"
+                      type="button"
+                      onClick={() => setNational(item.replace(/^\+260/, ""))}
+                    >
+                      <i className="tnum">{item.replace(/\D/g, "").slice(-2)}</i>
+                      {formatPhone(item).replace("+260 ", "")}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : null}
+            <PhoneField value={national} onChange={setNational} label="" />
+            <div style={{ marginTop: 18 }}>
+              <input className="amount-input tnum" inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} aria-label="Amount" />
+              <p className="amount-hint tnum">
+                {available ? `of ${grouped(displayAmount(available, asset), 2)} ${asset} available` : "\u00a0"}
+              </p>
+            </div>
             <div className="seg" role="group" aria-label="Asset">
               {(["USDC", "XLM"] as AssetCode[]).map((code) => (
                 <button key={code} type="button" aria-pressed={asset === code} onClick={() => setAsset(code)}>
-                  {code === "USDC" ? "USDC · $1" : "XLM · moves"}
+                  {code}
                 </button>
               ))}
             </div>
-            <PhoneField value={national} onChange={setNational} label="Their number" />
-            <p className="note">
-              If they already use Lipila, the money lands in their wallet. If not, Stellar holds a claimable balance until they open the link.
-            </p>
+            {ready ? (
+              <div className={registered ? "hint ok" : "hint"}>
+                <div>
+                  <b>{registered ? "Registered · instant" : "New number · 7-day claim link"}</b>
+                  <span className="note">
+                    {registered
+                      ? "You've paid this number before. If they still have a wallet, it lands immediately."
+                      : "They claim it, or it returns to you."}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="note">
+                If they already use Lipila, the money lands in their wallet. If not, Stellar holds a claimable balance until they open the link.
+              </p>
+            )}
+            <div className="fee-row"><span>Network fee</span><b>Paid in XLM</b></div>
             {error ? <p className="error">{error}</p> : null}
-            <button className="btn" disabled={busy} type="submit">
+            <button className="btn" disabled={busy} type="submit" style={{ marginTop: 12 }}>
               {busy ? "Submitting…" : `Send ${asset}`}
             </button>
           </form>
