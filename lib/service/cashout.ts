@@ -1,4 +1,4 @@
-import { expertTx } from "../config";
+import { ANCHOR_HOME_DOMAIN, expertTx } from "../config";
 import { createId } from "../crypto";
 import { HttpError } from "../errors";
 import { assertCashoutAmount, displayAmount, isAssetCode } from "../money";
@@ -41,9 +41,10 @@ export async function startCashout(input: { provider?: string; asset?: string; a
       asset: input.asset,
       amount: shown,
       phone: formatPhone(user.phone),
+      anchorDomain: ANCHOR_HOME_DOMAIN,
       message,
       steps: [
-        "SEP-10: Lipila signs a challenge from testanchor.stellar.org with your custodial key.",
+        `SEP-10: Lipila signs a challenge from ${ANCHOR_HOME_DOMAIN} with your custodial key.`,
         "SEP-24: Lipila opens an interactive withdrawal for USDC or XLM.",
         "You confirm the mobile-money details on the anchor.",
         "The anchor returns a Stellar account and memo. Lipila pays it from your wallet.",
@@ -77,6 +78,8 @@ export async function startCashout(input: { provider?: string; asset?: string; a
     interactiveUrl: started.url,
     anchorTxId: started.id,
     detail: cashout.detail,
+    anchorDomain: ANCHOR_HOME_DOMAIN,
+    sandbox: true,
   };
 }
 
@@ -127,5 +130,7 @@ export async function refreshCashout(id: string) {
     providerName: providerName(cashout.provider),
     amount: cashout.amount,
     asset: cashout.asset,
+    anchorDomain: ANCHOR_HOME_DOMAIN,
+    sandbox: true,
   };
 }

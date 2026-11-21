@@ -7,7 +7,9 @@ import { Check } from "lucide-react";
 import { api } from "@/components/api";
 import { grouped } from "@/components/format";
 import { Wordmark } from "@/components/logo";
+import { OtpEntry } from "@/components/otp-entry";
 import { fullPhone, PhoneField } from "@/components/phone-field";
+import { SandboxNotice } from "@/components/sandbox";
 import type { AssetCode } from "@/lib/money";
 
 type Claim = {
@@ -25,6 +27,7 @@ export default function ClaimPage() {
   const [claim, setClaim] = useState<Claim | null>(null);
   const [national, setNational] = useState("");
   const [code, setCode] = useState("");
+  const [sent, setSent] = useState(false);
   const [demoCode, setDemoCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,6 +51,7 @@ export default function ClaimPage() {
         body: { phone: fullPhone(national) },
       });
       setDemoCode(result.demoCode ?? null);
+      setSent(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send a code");
     } finally {
@@ -72,7 +76,8 @@ export default function ClaimPage() {
   return (
     <main className="gate" data-screen="claim">
       <Wordmark />
-      <p className="kicker" style={{ color: "#c86d3b", marginTop: 28 }}>Claim</p>
+      <SandboxNotice />
+      <p className="kicker" style={{ color: "#c86d3b", marginTop: 28 }}>Claim · testnet sandbox</p>
       {!claim && !error ? (
         <div aria-busy="true" style={{ marginTop: 18 }}>
           <div className="skel" style={{ height: 48, width: "55%" }} />
@@ -101,23 +106,12 @@ export default function ClaimPage() {
           <Link className="btn" href="/">Go to Lipila</Link>
         </div>
       ) : claim?.status === "open" ? (
-        <form className="stack" style={{ marginTop: 18 }} onSubmit={demoCode ? verify : requestCode}>
+        <form className="stack" style={{ marginTop: 18 }} onSubmit={sent ? verify : requestCode}>
           <PhoneField value={national} onChange={setNational} label="Your number" />
-          {demoCode ? (
-            <>
-              <div className="demo-code">
-                Demo code
-                <strong>{demoCode}</strong>
-              </div>
-              <label className="field">
-                <span>One-time code</span>
-                <input className="code-input tnum" inputMode="numeric" value={code} onChange={(event) => setCode(event.target.value)} />
-              </label>
-            </>
-          ) : null}
+          <OtpEntry sent={sent} demoCode={demoCode} code={code} onChange={setCode} />
           {error ? <p className="error">{error}</p> : null}
           <button className="btn" disabled={busy} type="submit">
-            {busy ? "Creating your wallet…" : demoCode ? "Claim" : "Send code"}
+            {busy ? "Creating your wallet…" : sent ? "Claim" : "Send code"}
           </button>
         </form>
       ) : error ? (

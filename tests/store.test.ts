@@ -51,4 +51,22 @@ describe("memory store", () => {
     await store.updateClaim("claim1", { status: "claimed", claimTxHash: "claimhash" });
     expect((await store.getClaim("claim1"))?.status).toBe("claimed");
   });
+
+  it("keeps a note from each of five pilot testers", async () => {
+    const store = new MemoryStore(emptyDatabase());
+    for (let index = 0; index < 5; index += 1) {
+      await store.insertFeedback({
+        id: `note-${index}`,
+        phone: `+26097111111${index}`,
+        rating: index + 1,
+        area: "send",
+        message: `Pilot note ${index} about sending to a phone number.`,
+        createdAt: `2026-11-21T00:00:0${index}.000Z`,
+      });
+    }
+    const notes = await store.listFeedback("+260971111112");
+    expect(notes).toHaveLength(1);
+    expect(notes[0]?.message).toContain("Pilot note 2");
+    expect(store.snapshot().feedback).toHaveLength(5);
+  });
 });

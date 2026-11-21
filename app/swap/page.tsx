@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Check } from "lucide-react";
 import { api } from "@/components/api";
 import { grouped } from "@/components/format";
+import { SandboxNotice } from "@/components/sandbox";
 import { Shell } from "@/components/shell";
 import type { AssetCode } from "@/lib/money";
 
@@ -68,11 +69,12 @@ export default function SwapPage() {
           <Link href="/cashout">Cash out</Link>
           <Link href="/swap" aria-current="page">Swap</Link>
         </div>
-        <p className="note">Path payments on the Stellar testnet order book. USDC stays $1. XLM price moves.</p>
+        <p className="note">Sandbox path payment on the Stellar testnet order book. USDC stays $1. XLM price moves. Not real money.</p>
         {result ? (
           <section className="receipt">
+            <SandboxNotice />
             <div className="ring"><Check size={26} /></div>
-            <div className="kicker">Swapped</div>
+            <div className="kicker">Sandbox swap</div>
             <h2 className="tnum" style={{ fontSize: 28 }}>
               {grouped(result.sourceAmount, 2)} {result.from} → {grouped(result.destinationAmount, 2)} {result.to}
             </h2>

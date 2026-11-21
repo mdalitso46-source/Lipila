@@ -1,4 +1,4 @@
-import { readFile } from "fs/promises";
+import { readdir, readFile } from "fs/promises";
 import path from "path";
 import { Pool, type QueryResultRow } from "pg";
 import type {
@@ -6,6 +6,7 @@ import type {
   Cashout,
   Claim,
   ClaimStatus,
+  Feedback,
   Otp,
   Session,
   Sponsor,
@@ -78,8 +79,27 @@ type CashoutRow = {
   created_at: Date | string;
 };
 
+type FeedbackRow = {
+  id: string;
+  phone: string;
+  rating: number;
+  area: Feedback["area"];
+  message: string;
+  created_at: Date | string;
+};
+
 function iso(value: Date | string): string {
   return value instanceof Date ? value.toISOString() : new Date(value).toISOString();
+}
+
+function poolOptions(connectionString: string): ConstructorParameters<typeof Pool>[0] {
+  const sslRequested = /sslmode=require|supabase\.(co|com)/i.test(connectionString);
+  const cleaned = connectionString.replace(/([?&])sslmode=[^&]*/g, "$1").replace(/[?&]$/, "");
+  return {
+    connectionString: cleaned,
+    max: 1,
+    ssl: sslRequested ? { rejectUnauthorized: false } : undefined,
+  };
 }
 
 function mapUser(row: UserRow): User {
@@ -146,16 +166,9 @@ export class PostgresStore implements Store {
   private constructor(private pool: Pool) {}
 
   static async connect(url: string, options: { autoMigrate: boolean }): Promise<PostgresStore> {
-    const pool = new Pool({ connectionString: url, max: 1 });
+    const pool = new Pool(poolOptions(url));
     const store = new PostgresStore(pool);
-    if (options.autoMigrate) {
-      const schemaPath = path.join(
-        process.cwd(),
-        "netlify/database/migrations/20261119170000_init/migration.sql",
-      );
-      const sql = await readFile(schemaPath, "utf8");
-      await pool.query(sql);
-    }
+    if (options.autoMigrate) await applyMigrations(pool);
     return store;
   }
 
@@ -396,5 +409,38 @@ export class PostgresStore implements Store {
       [phone],
     );
     return rows.map(mapCashout);
+  }
+
+  async insertFeedback(note: Feedback): Promise<Feedback> {
+    await this.rows(
+      `INSERT INTO feedback (id, phone, rating, area, message, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [note.id, note.phone, note.rating, note.area, note.message, note.createdAt],
+    );
+    return note;
+  }
+
+  async listFeedback(phone: string): Promise<Feedback[]> {
+    const rows = await this.rows<FeedbackRow>(
+      "SELECT * FROM feedback WHERE phone = $1 ORDER BY created_at DESC",
+      [phone],
+    );
+    return rows.map((row) => ({
+      id: row.id,
+      phone: row.phone,
+      rating: row.rating,
+      area: row.area,
+      message: row.message,
+      createdAt: iso(row.created_at),
+    }));
+  }
+}
+
+async function applyMigrations(pool: Pool): Promise<void> {
+  const root = path.join(process.cwd(), "netlify/database/migrations");
+  const entries = (await readdir(root)).filter((name) => /^\d/.test(name)).sort();
+  for (const dir of entries) {
+    const sql = await readFile(path.join(root, dir, "migration.sql"), "utf8");
+    await pool.query(sql);
   }
 }

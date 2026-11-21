@@ -4,6 +4,7 @@ export type UserStatus = "active" | "pending" | "funding";
 export type ClaimStatus = "open" | "claimed" | "reclaimed";
 export type Direction = "in" | "out";
 export type CashoutProvider = "airtel" | "mtn";
+export type FeedbackArea = "signin" | "send" | "claim" | "swap" | "cashout" | "general";
 
 export type User = {
   phone: string;
@@ -75,6 +76,15 @@ export type Cashout = {
   createdAt: string;
 };
 
+export type Feedback = {
+  id: string;
+  phone: string;
+  rating: number;
+  area: FeedbackArea;
+  message: string;
+  createdAt: string;
+};
+
 export type Database = {
   users: User[];
   otps: Otp[];
@@ -83,6 +93,7 @@ export type Database = {
   activities: Activity[];
   sponsor: Sponsor | null;
   cashouts: Cashout[];
+  feedback: Feedback[];
 };
 
 export function emptyDatabase(): Database {
@@ -94,6 +105,7 @@ export function emptyDatabase(): Database {
     activities: [],
     sponsor: null,
     cashouts: [],
+    feedback: [],
   };
 }
 
@@ -124,4 +136,6 @@ export interface Store {
     patch: Partial<Pick<Cashout, "anchorTxId" | "status" | "interactiveUrl" | "stellarTxHash" | "detail">>,
   ): Promise<void>;
   listCashouts(phone: string): Promise<Cashout[]>;
+  insertFeedback(note: Feedback): Promise<Feedback>;
+  listFeedback(phone: string): Promise<Feedback[]>;
 }

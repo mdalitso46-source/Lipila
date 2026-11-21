@@ -2,6 +2,7 @@ import type {
   Activity,
   Cashout,
   Claim,
+  Feedback,
   ClaimStatus,
   Database,
   Otp,
@@ -157,6 +158,18 @@ export class MemoryStore implements Store {
 
   async listCashouts(phone: string): Promise<Cashout[]> {
     return this.db.cashouts
+      .filter((item) => item.phone === phone)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async insertFeedback(note: Feedback): Promise<Feedback> {
+    this.db.feedback.push(note);
+    await this.touch();
+    return note;
+  }
+
+  async listFeedback(phone: string): Promise<Feedback[]> {
+    return this.db.feedback
       .filter((item) => item.phone === phone)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }

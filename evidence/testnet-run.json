@@ -1,0 +1,167 @@
+{
+  "network": "Stellar testnet",
+  "usdcIssuer": "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5",
+  "anchor": "testanchor.stellar.org",
+  "claimWindowSeconds": 604800,
+  "generatedAt": "2026-11-21T20:43:04.834Z",
+  "wallets": {
+    "alice": "GAOXWA4LYAGWIQZCD2MLB37DKKCNZQCRFE3WDBRHATEAM32JOEW5QLII",
+    "brian": "GCH5G76ENFFYOYCRGR4XUUS2OESTIHFUSZ2PQUQKTJVG3SREEOF2CDQG",
+    "chipo": "GBBBAZHDG3STDYRVGDCO55B7RNQQAWW5RL35UXGJIY5UE5L5AQOD3MZ7",
+    "sponsor": "GCALNMHPRRBI26AIBQTPBZRGNTT3ZTDNKTO5AAHSP73SXHI2U4RWL5QJ"
+  },
+  "transactions": [
+    {
+      "step": "Friendbot funded Alice",
+      "hash": "58a6df5d4ec8d58ceb09ce021e40f133a8a82056a9cebd502287725c58a5f4e2",
+      "url": "https://stellar.expert/explorer/testnet/tx/58a6df5d4ec8d58ceb09ce021e40f133a8a82056a9cebd502287725c58a5f4e2",
+      "ok": true
+    },
+    {
+      "step": "Friendbot funded Brian",
+      "hash": "da3e607957082a12aae153fc61f52fe3387fad66e8ac6b2172724b39d79bb1c2",
+      "url": "https://stellar.expert/explorer/testnet/tx/da3e607957082a12aae153fc61f52fe3387fad66e8ac6b2172724b39d79bb1c2",
+      "ok": true
+    },
+    {
+      "step": "Friendbot funded sponsor",
+      "hash": "2bc424469d6181350f8560e252efd9992f3fad41efa6f4adafbb8ee8ab3c35ad",
+      "url": "https://stellar.expert/explorer/testnet/tx/2bc424469d6181350f8560e252efd9992f3fad41efa6f4adafbb8ee8ab3c35ad",
+      "ok": true
+    },
+    {
+      "step": "Alice opened a USDC trustline",
+      "hash": "f8350bb774ea1d526e48bc7019724334a179513f8b92673361c613c34e3b497f",
+      "url": "https://stellar.expert/explorer/testnet/tx/f8350bb774ea1d526e48bc7019724334a179513f8b92673361c613c34e3b497f",
+      "ok": true
+    },
+    {
+      "step": "Brian opened a USDC trustline",
+      "hash": "6c8c197d45c8b7e49e7aad7c873bc210e433dace8a63b40abadbe81fd318ebe9",
+      "url": "https://stellar.expert/explorer/testnet/tx/6c8c197d45c8b7e49e7aad7c873bc210e433dace8a63b40abadbe81fd318ebe9",
+      "ok": true
+    },
+    {
+      "step": "Swapped 10 XLM for USDC on the testnet DEX",
+      "hash": "a9c53d622ab3721a81f2f28d4756b8b6938474dac49a49cea8304dac5c01fc3e",
+      "url": "https://stellar.expert/explorer/testnet/tx/a9c53d622ab3721a81f2f28d4756b8b6938474dac49a49cea8304dac5c01fc3e",
+      "ok": true,
+      "detail": "about 7.06 USDC at 0.7062"
+    },
+    {
+      "step": "Paid 1 USDC to an existing account",
+      "hash": "a565b506cc540a6c090f38fbbf509f2dafd6326e22d1cd8d6de2e1e3d757743a",
+      "url": "https://stellar.expert/explorer/testnet/tx/a565b506cc540a6c090f38fbbf509f2dafd6326e22d1cd8d6de2e1e3d757743a",
+      "ok": true
+    },
+    {
+      "step": "Paid 2 XLM to an existing account",
+      "hash": "9d6248ea3cc55f7bf1eeb286ebd15b70b0171982f45e7aa5b0de01423b9627a4",
+      "url": "https://stellar.expert/explorer/testnet/tx/9d6248ea3cc55f7bf1eeb286ebd15b70b0171982f45e7aa5b0de01423b9627a4",
+      "ok": true
+    },
+    {
+      "step": "Created a 7-day claimable balance of 3 XLM for a new account",
+      "hash": "67bea2086c06a7f528164c97bcdf2c03b850ab4b76f054aff3ace53a6538856b",
+      "url": "https://stellar.expert/explorer/testnet/tx/67bea2086c06a7f528164c97bcdf2c03b850ab4b76f054aff3ace53a6538856b",
+      "ok": true,
+      "detail": "00000000766038a43cfe187fb9ab05d04c9c93088670fb6f8d7be8c724db933df6782041",
+      "extra": {
+        "balanceId": "00000000766038a43cfe187fb9ab05d04c9c93088670fb6f8d7be8c724db933df6782041",
+        "horizonClaimants": "[{\"destination\":\"GBBBAZHDG3STDYRVGDCO55B7RNQQAWW5RL35UXGJIY5UE5L5AQOD3MZ7\",\"predicate\":{\"unconditional\":true}},{\"destination\":\"GAOXWA4LYAGWIQZCD2MLB37DKKCNZQCRFE3WDBRHATEAM32JOEW5QLII\",\"predicate\":{\"not\":{\"abs_before\":\"2026-11-28T20:38:11Z\",\"abs_before_epoch\":\"1795898291\"}}}]"
+      }
+    },
+    {
+      "step": "Sponsored account creation and claim into the new wallet",
+      "hash": "06e7829f4fd0b265dab60271392bd69d278e328e006ca9f73dad72acfb77bbf4",
+      "url": "https://stellar.expert/explorer/testnet/tx/06e7829f4fd0b265dab60271392bd69d278e328e006ca9f73dad72acfb77bbf4",
+      "ok": true
+    },
+    {
+      "step": "Created a 5-second claimable balance to prove sender reclaim",
+      "hash": "81a5d72621de30c5a44724ab811976238c06f0a1c9edd8aca501972ad78a24db",
+      "url": "https://stellar.expert/explorer/testnet/tx/81a5d72621de30c5a44724ab811976238c06f0a1c9edd8aca501972ad78a24db",
+      "ok": true,
+      "detail": "App default remains 604800 seconds. This predicate is only for the evidence run.",
+      "extra": {
+        "balanceId": "00000000934df7f55f3a47569adb48677f5afef79e6d2bc3bdd37beb2c4890775308cfbb"
+      }
+    },
+    {
+      "step": "Sender reclaimed the short-window balance",
+      "hash": "06d9bb9649c8c7d21967209f476a3371f53a156585e1f7ad3475ccf582039ca2",
+      "url": "https://stellar.expert/explorer/testnet/tx/06d9bb9649c8c7d21967209f476a3371f53a156585e1f7ad3475ccf582039ca2",
+      "ok": true,
+      "detail": "Same claimClaimableBalance operation the 7-day reclaim uses."
+    },
+    {
+      "step": "Friendbot funded SEP-24 sender",
+      "hash": "edfc3d055db2f3358203e52a906bcd13cddab3b94c373612168aa826e011c08e",
+      "url": "https://stellar.expert/explorer/testnet/tx/edfc3d055db2f3358203e52a906bcd13cddab3b94c373612168aa826e011c08e",
+      "ok": true
+    },
+    {
+      "step": "Swapped 8 XLM for USDC to fund the sandbox cash-out",
+      "hash": "7c677b1464c403b961b39344d8845ec6a9c29792931e7b9f964232f761448429",
+      "url": "https://stellar.expert/explorer/testnet/tx/7c677b1464c403b961b39344d8845ec6a9c29792931e7b9f964232f761448429",
+      "ok": true,
+      "detail": "about 5.64 USDC"
+    },
+    {
+      "step": "Friendbot funded SEP-24 sender",
+      "hash": "81218b79371ad63de5710e79c8025cd3d38922c059ecc22f90751812d6446a12",
+      "url": "https://stellar.expert/explorer/testnet/tx/81218b79371ad63de5710e79c8025cd3d38922c059ecc22f90751812d6446a12",
+      "ok": true
+    },
+    {
+      "step": "Swapped 8 XLM for USDC to fund the sandbox cash-out",
+      "hash": "e57f320abd2614b9e58b55bc90a90cb3b462c49cd0c8298a3b688d17f3fa3605",
+      "url": "https://stellar.expert/explorer/testnet/tx/e57f320abd2614b9e58b55bc90a90cb3b462c49cd0c8298a3b688d17f3fa3605",
+      "ok": true,
+      "detail": "about 5.64 USDC"
+    },
+    {
+      "step": "Friendbot funded SEP-24 sender",
+      "hash": "a43fb80c83c22191854f9a63ef681afc6dd4ba4e89d8e2ef0cb4a07f830e9147",
+      "url": "https://stellar.expert/explorer/testnet/tx/a43fb80c83c22191854f9a63ef681afc6dd4ba4e89d8e2ef0cb4a07f830e9147",
+      "ok": true
+    },
+    {
+      "step": "Swapped 8 XLM for USDC to fund the sandbox cash-out",
+      "hash": "ef5d34d6d753e2fb530bda7efbb3dce7f6db0f5ce1a352323d785bb9ea7be821",
+      "url": "https://stellar.expert/explorer/testnet/tx/ef5d34d6d753e2fb530bda7efbb3dce7f6db0f5ce1a352323d785bb9ea7be821",
+      "ok": true,
+      "detail": "about 5.64 USDC"
+    },
+    {
+      "step": "Started SEP-24 withdrawal at the test anchor",
+      "ok": true,
+      "detail": "interactive_customer_info_needed",
+      "extra": {
+        "anchorTxId": "2dd6ae6a-9a60-4cd2-982b-bbabb1247bba",
+        "anchor": "testanchor.stellar.org"
+      }
+    },
+    {
+      "step": "Paid the SEP-24 anchor the withdrawal amount",
+      "hash": "0f1dc8ced182aa84125d3806127f3c31cfe5f60d273e396ba374daa50b0cf162",
+      "url": "https://stellar.expert/explorer/testnet/tx/0f1dc8ced182aa84125d3806127f3c31cfe5f60d273e396ba374daa50b0cf162",
+      "ok": true,
+      "extra": {
+        "anchorTxId": "2dd6ae6a-9a60-4cd2-982b-bbabb1247bba"
+      }
+    },
+    {
+      "step": "SEP-24 anchor status after the sandbox withdrawal",
+      "hash": "0f1dc8ced182aa84125d3806127f3c31cfe5f60d273e396ba374daa50b0cf162",
+      "url": "https://stellar.expert/explorer/testnet/tx/0f1dc8ced182aa84125d3806127f3c31cfe5f60d273e396ba374daa50b0cf162",
+      "ok": true,
+      "detail": "pending_anchor",
+      "extra": {
+        "anchorTxId": "2dd6ae6a-9a60-4cd2-982b-bbabb1247bba",
+        "form": "SEP-24 REFERENCE UI Transaction information TRANSACTION TYPE withdrawal TRANSACTION ID 2dd6ae6a-9a60-4cd2-982b-bbabb1247bba SEND AMOUNT 2 USDC RECEIVE AMOUNT 1.8 USD FEE AMOUNT 0.2 USDC TRANSACTION STATUS pending_user_transfer_start MESSAGE"
+      }
+    }
+  ],
+  "sep24Wallet": "GATWOQ6Z2BIQEC6DHK37TVIRGOLY36SY2ANKLFOZYOGMXFQCJ45KQ3D5"
+}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/components/api";
 import { grouped } from "@/components/format";
+import { SandboxNotice } from "@/components/sandbox";
 import { Shell } from "@/components/shell";
 import type { AssetCode } from "@/lib/money";
 
@@ -15,6 +16,7 @@ type Started = {
   amount: string;
   status?: string;
   interactiveUrl?: string | null;
+  anchorDomain?: string;
   detail?: string | null;
   message?: string;
   steps?: string[];
@@ -71,10 +73,11 @@ export default function CashoutPage() {
           <Link href="/swap">Swap</Link>
         </div>
         <p className="note">
-          Airtel Money and MTN MoMo are the labels. The rails are SEP-24 against the Stellar test anchor at testanchor.stellar.org. Nothing here pays real kwacha.
+          Airtel Money and MTN MoMo are the labels for a sandbox SEP-24 withdrawal. The anchor ({flow?.anchorDomain || "testanchor.stellar.org"}) stands in for a Zambian mobile-money partner. Nothing here pays real kwacha.
         </p>
         {flow ? (
           <section className="card stack" style={{ marginTop: 14, padding: 16 }} data-screen="cashout-status">
+            <SandboxNotice />
             <span className={flow.done ? "tag" : "tag wait"}>{flow.done ? "Completed" : (flow.status || "In progress").replaceAll("_", " ")}</span>
             <strong>{flow.providerName}</strong>
             <span className="tnum" style={{ fontSize: 36, fontWeight: 700 }}>{grouped(flow.amount, 2)} {flow.asset}</span>
