@@ -1,11 +1,3 @@
-export function DemoSmsNotice() {
-  return (
-    <p className="demo-sms-note">
-      Demo SMS: your code is shown here. Live SMS delivery arrives in Phase 2.
-    </p>
-  );
-}
-
 export function OtpEntry({
   sent,
   demoCode,
@@ -31,7 +23,6 @@ export function OtpEntry({
             <strong className="tnum">{demoCode}</strong>
             <p>This code is drawn on the screen. It was not sent by a mobile network.</p>
           </div>
-          <p className="sms-preview-foot">Demo SMS: your code is shown here. Live SMS delivery arrives in Phase 2.</p>
         </div>
       ) : (
         <p className="note">We texted a 6-digit code. It expires in 10 minutes. This sign-in is for the testnet sandbox.</p>

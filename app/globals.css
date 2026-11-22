@@ -590,22 +590,13 @@ img.mark { display: block; }
   margin: 8px 0;
   font-weight: 650;
 }
-.demo-sms-note {
-  margin: 0;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: #fbf3ec;
-  color: #9a4e24;
-  font-size: 13px;
-  font-weight: 650;
-}
 .sms-preview {
   background: #f6f1ea;
   border-radius: 18px;
   padding: 12px;
   box-shadow: inset 0 0 0 1px rgba(200, 109, 59, 0.38);
 }
-.sms-preview-top, .sms-preview-foot {
+.sms-preview-top {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -642,7 +633,6 @@ img.mark { display: block; }
   letter-spacing: 0.18em;
   font-variant-numeric: tabular-nums;
 }
-.sms-preview-foot { display: block; line-height: 1.4; }
 .demo-code {
   background: white;
   border-radius: 16px;

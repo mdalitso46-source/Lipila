@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 import { api } from "@/components/api";
 import { grouped } from "@/components/format";
 import { Wordmark } from "@/components/logo";
-import { DemoSmsNotice, OtpEntry } from "@/components/otp-entry";
+import { OtpEntry } from "@/components/otp-entry";
 import { fullPhone, PhoneField } from "@/components/phone-field";
 import { SandboxNotice } from "@/components/sandbox";
 import type { AssetCode } from "@/lib/money";
@@ -108,7 +108,6 @@ export default function ClaimPage() {
       ) : claim?.status === "open" ? (
         <form className="stack" style={{ marginTop: 18 }} onSubmit={sent ? verify : requestCode}>
           <PhoneField value={national} onChange={setNational} label="Your number" />
-          {sent ? null : <DemoSmsNotice />}
           <OtpEntry sent={sent} demoCode={demoCode} code={code} onChange={setCode} />
           {error ? <p className="error">{error}</p> : null}
           <button className="btn" disabled={busy} type="submit">

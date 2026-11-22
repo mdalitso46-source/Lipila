@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/components/api";
 import { Wordmark } from "@/components/logo";
-import { DemoSmsNotice, OtpEntry } from "@/components/otp-entry";
+import { OtpEntry } from "@/components/otp-entry";
 import { fullPhone, PhoneField } from "@/components/phone-field";
 import { SandboxNotice } from "@/components/sandbox";
 
@@ -61,7 +61,6 @@ export default function LoginPage() {
       </p>
       <form className="stack" onSubmit={sent ? verify : requestCode} style={{ marginTop: 22 }}>
         <PhoneField value={national} onChange={setNational} />
-        {sent ? null : <DemoSmsNotice />}
         <OtpEntry sent={sent} demoCode={demoCode} code={code} onChange={setCode} />
         {error ? <p className="error">{error}</p> : null}
         <button className="btn" disabled={busy} type="submit">
