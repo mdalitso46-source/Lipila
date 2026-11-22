@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SandboxNotice } from "./sandbox";
 import { Wordmark } from "./logo";
 
 export function Landing() {
@@ -22,7 +23,9 @@ export function Landing() {
         <span>0-fee claims</span>
         <span>7-day escrow</span>
         <span>Stellar USDC &amp; XLM</span>
+        <span>Testnet sandbox</span>
       </div>
+      <SandboxNotice tone="dark" />
       <div className="stage-card" aria-hidden="true">
         <div className="card-back" />
         <div className="balance wallet-card">

@@ -6,6 +6,7 @@ import { Check, ChevronLeft, Copy } from "lucide-react";
 import { api } from "@/components/api";
 import { grouped } from "@/components/format";
 import { fullPhone, PhoneField } from "@/components/phone-field";
+import { SandboxNotice } from "@/components/sandbox";
 import { Shell } from "@/components/shell";
 import { formatPhone } from "@/lib/phone";
 import { displayAmount, type AssetCode } from "@/lib/money";
@@ -93,9 +94,10 @@ export default function SendPage() {
             <div className="ring">
               <Check size={26} />
             </div>
-            <div className="kicker">{receipt.mode === "payment" ? "Paid on Stellar" : "Held on Stellar"}</div>
+            <SandboxNotice />
+            <div className="kicker">{receipt.mode === "payment" ? "Sandbox payment on Stellar" : "Sandbox claim on Stellar"}</div>
             <h2 className="tnum">{grouped(receipt.amount, 2)} {receipt.asset}</h2>
-            <p className="note">{receipt.mode === "payment" ? "Instant payment" : "USDC · Claimable escrow"}</p>
+            <p className="note">{receipt.mode === "payment" ? "Instant testnet payment. Not real money." : "Testnet claimable escrow. Not real money."}</p>
             <div className="card" style={{ marginTop: 16 }}>
               <div className="kv"><span>Recipient</span><b className="tnum">{formatPhone(receipt.recipientPhone)}</b></div>
               <div className="kv"><span>Delivery</span><b>{receipt.mode === "payment" ? "Instant" : "Claimable · 7-day escrow"}</b></div>

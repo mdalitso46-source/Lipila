@@ -7,6 +7,7 @@ import { assertSendAmount, displayAmount, isAssetCode } from "../money";
 import { formatPhone, normalizePhone } from "../phone";
 import { getStore } from "../store";
 import type { User } from "../store/types";
+import { deliverNotice } from "../sms";
 import { createClaimable, sendPayment } from "../stellar/payments";
 import { claimBalance } from "../stellar/payments";
 import { keypairFromUser } from "../stellar/wallet";
@@ -115,6 +116,7 @@ async function createClaim(
     asset,
     claimUrl,
   });
+  const sms = await deliverNotice(recipient.phone, `${preview} Testnet sandbox, not real money.`);
   await recordActivity(store, {
     ownerPhone: sender.phone,
     kind: "claimable",
@@ -135,6 +137,7 @@ async function createClaim(
     recipientPhone: recipient.phone,
     claimUrl,
     smsPreview: preview,
+    smsSent: sms === "sent",
     claimId: claim.id,
     expiresAt: claim.expiresAt,
   };

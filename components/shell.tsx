@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeftRight, ArrowUp, Banknote, House } from "lucide-react";
+import { SandboxNotice } from "./sandbox";
 
 const tabs = [
   { href: "/", label: "Home", icon: House },
@@ -15,7 +16,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   return (
     <div className="app">
-      <div className="scroll">{children}</div>
+      <div className="scroll">
+        <SandboxNotice />
+        {children}
+      </div>
       <nav className="nav" aria-label="Primary">
         {tabs.map((tab) => {
           const Icon = tab.icon;

@@ -8,7 +8,19 @@ export async function openFileStore(filePath: string): Promise<MemoryStore> {
   let db = emptyDatabase();
   try {
     const raw = await readFile(filePath, "utf8");
-    db = { ...emptyDatabase(), ...(JSON.parse(raw) as Database) };
+    const parsed = JSON.parse(raw) as Partial<Database>;
+    db = {
+      ...emptyDatabase(),
+      ...parsed,
+      feedback: parsed.feedback ?? [],
+      cashouts: parsed.cashouts ?? [],
+      users: parsed.users ?? [],
+      otps: parsed.otps ?? [],
+      sessions: parsed.sessions ?? [],
+      claims: parsed.claims ?? [],
+      activities: parsed.activities ?? [],
+      sponsor: parsed.sponsor ?? null,
+    };
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
     if (code !== "ENOENT") throw error;

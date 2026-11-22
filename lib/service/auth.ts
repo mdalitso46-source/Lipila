@@ -1,11 +1,11 @@
 import { Keypair } from "@stellar/stellar-sdk";
 import { reclaimAvailableAt } from "../claims";
-import { demoMode } from "../config";
 import { createId, encryptSecret, hashCode, randomCode, codesMatch, sha256 } from "../crypto";
 import { HttpError } from "../errors";
 import { formatPhone, normalizePhone } from "../phone";
 import { getStore } from "../store";
 import type { User } from "../store/types";
+import { deliverOtp } from "../sms";
 import { claimBalance } from "../stellar/payments";
 import { accountExists, ensureTrustline, fundWithFriendbot, sleep } from "../stellar/server";
 import { getSponsorKeypair, keypairFromUser, materializeAndClaim } from "../stellar/wallet";
@@ -15,7 +15,12 @@ import { publicUser } from "./session";
 const OTP_MS = 10 * 60 * 1000;
 const SESSION_MS = 30 * 24 * 60 * 60 * 1000;
 
-export async function requestOtp(phoneInput: string): Promise<{ phone: string; demoCode?: string }> {
+export async function requestOtp(phoneInput: string): Promise<{
+  phone: string;
+  delivery: "demo" | "sms";
+  provider: string;
+  demoCode?: string;
+}> {
   const phone = normalizePhone(phoneInput);
   const code = randomCode();
   const store = await getStore();
@@ -25,7 +30,14 @@ export async function requestOtp(phoneInput: string): Promise<{ phone: string; d
     expiresAt: new Date(Date.now() + OTP_MS).toISOString(),
     attempts: 0,
   });
-  return demoMode() ? { phone, demoCode: code } : { phone };
+  try {
+    const sent = await deliverOtp(phone, code);
+    if (sent.exposeCode) return { phone, delivery: "demo", provider: sent.provider, demoCode: code };
+    return { phone, delivery: "sms", provider: sent.provider };
+  } catch (error) {
+    await store.deleteOtp(phone);
+    throw error;
+  }
 }
 
 export async function verifyOtp(phoneInput: string, code: string): Promise<{

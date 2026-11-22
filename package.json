@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "testnet:evidence": "tsx scripts/verify-testnet.ts"
   },
   "repository": {
     "type": "git",
@@ -32,8 +33,10 @@
     "@types/react-dom": "^19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^16.4.6",
+    "playwright": "^1.65.1",
     "postcss": "^8.5.33",
     "tailwindcss": "^4.3.5",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.3",
     "vitest": "^5.1.1"
   }

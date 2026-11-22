@@ -50,5 +50,6 @@ export async function swap(input: { from?: string; to?: string; amount?: string 
     destinationAmount: result.quote.destinationAmount,
     rate: result.quote.rate,
     phone: formatPhone(user.phone),
+    sandbox: true,
   };
 }

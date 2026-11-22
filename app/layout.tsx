@@ -10,6 +10,7 @@ const instrument = Instrument_Sans({
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.APP_URL || "http://localhost:3000"),
   title: "Lipila",
   description: "Send USDC or lumens to a Zambian phone number on Stellar testnet.",
   openGraph: {

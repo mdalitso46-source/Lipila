@@ -60,6 +60,8 @@ export default function HomePage() {
   const [home, setHome] = useState<Home | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [reclaiming, setReclaiming] = useState<string | null>(null);
+  const [now, setNow] = useState(0);
   const [phase, setPhase] = useState<"loading" | "ready" | "signedout">("loading");
 
   useEffect(() => {
@@ -96,6 +98,12 @@ export default function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!home) return;
+    const timer = window.setTimeout(() => setNow(Date.now()), 0);
+    return () => window.clearTimeout(timer);
+  }, [home]);
+
   if (phase === "signedout") return <Landing />;
   if (phase === "loading") {
     return (
@@ -105,6 +113,20 @@ export default function HomePage() {
         <div className="skel" style={{ height: 64, marginTop: 16 }} />
       </div>
     );
+  }
+
+  async function reclaim(id: string) {
+    setReclaiming(id);
+    setError(null);
+    try {
+      await api(`/api/claims/${id}/reclaim`, { method: "POST" });
+      setNote("Reclaimed. The sandbox payment is back in your wallet.");
+      setHome(await api<Home>("/api/me"));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not reclaim");
+    } finally {
+      setReclaiming(null);
+    }
   }
 
   const open = home?.claims.filter((claim) => claim.status === "open") ?? [];
@@ -118,7 +140,10 @@ export default function HomePage() {
             <div className="hello">Muli bwanji</div>
             <b>Your wallet</b>
           </div>
-          <span className="avatar tnum">{initials(home?.user.phone || home?.phoneDisplay)}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Link href="/feedback" className="feedback-link">Feedback</Link>
+            <span className="avatar tnum">{initials(home?.user.phone || home?.phoneDisplay)}</span>
+          </div>
         </header>
         {error ? <p className="error">{error}</p> : null}
         {note ? <p className="note">{note}</p> : null}
@@ -164,18 +189,32 @@ export default function HomePage() {
           </Link>
         </div>
         {open.length ? (
-          <a className="banner" id="pending" href={open[0].txHash ? expertTx(open[0].txHash) : "#pending"}>
-            <Clock size={18} color="#C86D3B" />
-            <div>
-              <b>
-                {open.length} payment{open.length === 1 ? "" : "s"} waiting to be claimed
-              </b>
-              <span>
-                {formatPhone(open[0].recipientPhone)} · until {new Date(open[0].expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-              </span>
-            </div>
-            <strong className="tnum">{grouped(open[0].amount, 2)} {open[0].asset}</strong>
-          </a>
+          <div id="pending" className="stack" style={{ marginTop: 16 }}>
+            {open.map((claim) => {
+              const ready = now > 0 && new Date(claim.expiresAt).getTime() <= now;
+              return (
+                <div className="banner" key={claim.id}>
+                  <Clock size={18} color="#C86D3B" />
+                  <div style={{ flex: 1 }}>
+                    <b>Sandbox claim waiting · {formatPhone(claim.recipientPhone)}</b>
+                    <span>
+                      {ready
+                        ? "7 days have passed. You can reclaim this testnet payment."
+                        : `Reclaim after ${new Date(claim.expiresAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`}
+                    </span>
+                    {ready ? (
+                      <button className="btn secondary slim" type="button" disabled={reclaiming === claim.id} onClick={() => reclaim(claim.id)}>
+                        {reclaiming === claim.id ? "Reclaiming…" : "Reclaim to my wallet"}
+                      </button>
+                    ) : null}
+                  </div>
+                  <a className="tnum" href={claim.txHash ? expertTx(claim.txHash) : "#pending"}>
+                    {grouped(claim.amount, 2)} {claim.asset}
+                  </a>
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <div id="pending" />
         )}
@@ -191,6 +230,7 @@ export default function HomePage() {
                 <strong>{item.title}</strong>
                 <em>
                   <time dateTime={item.createdAt}>{relativeTime(item.createdAt)}</time>
+                  <span className="tag wait">Sandbox</span>
                   <span className={tag.className}>{tag.label}</span>
                 </em>
               </span>

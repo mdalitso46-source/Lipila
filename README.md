@@ -2,18 +2,19 @@
 
 Lipila means “pay” in Nyanja and Bemba. It is a small testnet app for Zambia: send USDC or lumens (XLM) to someone using only their phone number, on the Stellar network.
 
-It is a demo. The money is Stellar testnet. Nothing here is real kwacha, and there is no real SMS provider.
+It is a testnet sandbox. Nothing here is real kwacha. Sign-in is demonstrated with a demo SMS: the one-time code is shown on screen and labelled as a preview. Live SMS, through Africa's Talking or Twilio, is phase 2 and stays behind `SMS_PROVIDER`.
 
 ## What you can do
 
 Five screens, plus the claim link a new recipient opens:
 
-1. **Sign up** with a Zambian mobile number (`+260`). Lipila shows the one-time code on screen. The server creates a custodial testnet wallet, asks Friendbot for XLM, and opens a trustline to Circle’s testnet USDC.
+1. **Sign up** with a Zambian mobile number (`+260`). The hosted demo shows the one-time code in a Demo SMS card. It is not a carrier message. Live SMS delivery is phase 2 (`SMS_PROVIDER=africastalking` or `twilio`). The server creates a custodial testnet wallet, asks Friendbot for XLM, and opens a trustline to Circle’s testnet USDC. Secret keys are encrypted at rest and are not sent to the client.
 2. **Home** shows USDC and XLM, an estimated dollar value, and activity. Every on-chain row links to [stellar.expert](https://stellar.expert/explorer/testnet) testnet.
 3. **Send** a phone number, an amount, and USDC or XLM. If they already have a Lipila wallet, this is a normal Stellar payment. If they do not, Lipila creates a claimable balance they can take, and the sender can reclaim it after 7 days.
 4. **Claim** is the link in the simulated text message. The new person verifies the same phone number, Lipila creates their account with sponsored reserves (they do not need XLM to exist), and the claimable balance is claimed into it.
 5. **Swap** turns XLM into USDC or the other way in one tap, using a Stellar path payment against the testnet DEX. USDC stays $1. XLM moves with the testnet price.
-6. **Cash out** starts a SEP-24 withdrawal to the Stellar test anchor (`testanchor.stellar.org`) labelled as Airtel Money or MTN MoMo. The anchor is a test system. It does not pay a real mobile-money wallet.
+6. **Cash out** starts a SEP-24 withdrawal. Airtel Money and MTN MoMo are labels. The anchor domain comes from `ANCHOR_HOME_DOMAIN` (default `testanchor.stellar.org`), so a Zambian anchor replaces that value only. The test anchor does not pay a real mobile-money wallet.
+7. **Pilot feedback** is a signed-in form. Notes are stored in the same database as the wallets.
 
 ## How it sits on Stellar
 
@@ -37,13 +38,13 @@ npm install
 cp .env.example .env.local
 ```
 
-Put real values in `.env.local`:
+Every variable is listed in [`.env.example`](.env.example). Put real values in `.env.local`:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-Use one line for `WALLET_ENCRYPTION_KEY` and another for `SESSION_SECRET`. Leave `DEMO_MODE=true` so the one-time code is shown on screen.
+Use one line for `WALLET_ENCRYPTION_KEY` and another for `SESSION_SECRET`. Leave `SMS_PROVIDER=demo` and `DEMO_MODE=true`. That is the hosted demo: no SMS credentials, and the code appears in the Demo SMS card. Live SMS is phase 2.
 
 ```bash
 npm run dev
@@ -67,14 +68,18 @@ Wallet secrets in every store are ciphertext. Sessions are random tokens; only a
 
 `netlify.toml` builds with `npm run build` and publishes `.next`. Netlify’s Next.js runtime serves the App Router and the route handlers.
 
-In the Netlify UI, set:
+In the Netlify UI (or any other host), set the variables from `.env.example`. Do not put secrets in `netlify.toml`.
 
-- `WALLET_ENCRYPTION_KEY` — 32-byte hex or base64
-- `SESSION_SECRET` — a long random string
-- `DEMO_MODE` — `true` for this demo (the code is shown on screen), `false` only if you add a real SMS sender
+Required before a public pilot:
+
+- `WALLET_ENCRYPTION_KEY` — 32-byte hex or base64. Required in production, including when SMS is in demo mode.
+- `SESSION_SECRET` — a long random string. Required in production, including when SMS is in demo mode.
 - `APP_URL` — the public site URL, used in claim links
+- `SMS_PROVIDER` — `demo` for this sprint. Africa's Talking and Twilio stay in the code for phase 2.
+- `DEMO_MODE` — `true` for the hosted demo. A production build starts with this set and does not need an SMS account.
+- Postgres — Netlify Database (`NETLIFY_DB_URL`, applied from `netlify/database/migrations`) or `DATABASE_URL` for Supabase or any other Postgres. Use Supabase's session pooler on port 5432. Lipila turns on TLS when the URL asks for it.
 
-Do not put those secrets in `netlify.toml`. Postgres comes from Netlify Database (`NETLIFY_DB_URL`) or from `DATABASE_URL` if you bring your own.
+`ANCHOR_HOME_DOMAIN` stays `testanchor.stellar.org` until a Zambian SEP-24 anchor is contracted. Swapping that domain is the integration change.
 
 ## Scripts
 
@@ -82,9 +87,14 @@ Do not put those secrets in `netlify.toml`. Postgres comes from Netlify Database
 npm test
 npm run lint
 npm run build
+npm run testnet:evidence
 ```
 
+`testnet:evidence` funds fresh Friendbot accounts and writes public transaction hashes to `evidence/testnet-run.json`. It does not print secret keys. The 2–3 minute recording checklist is [`docs/DEMO-SCRIPT.md`](docs/DEMO-SCRIPT.md). Completion evidence is [`EVIDENCE.md`](EVIDENCE.md).
+
 Tests cover phone numbers, amounts, encryption, the 7-day reclaim rule, claimable-balance predicates, and the in-memory store.
+
+A later testnet run, with Horizon-confirmed hashes for payments, the 7-day claim, a sender reclaim, the swap, and a SEP-24 anchor payment, is written up in [`EVIDENCE.md`](EVIDENCE.md).
 
 ## Demo, as run on testnet
 
@@ -152,9 +162,24 @@ The open claim page screenshot is a separate 1 USDC claimable balance: https://s
 
 ![Anchor waiting for the on-chain payment](evidence/18-anchor-after.png)
 
-## Not in this demo
+## Still needs credentials from the owner
 
-- No real SMS. Codes are shown because `DEMO_MODE` is on.
-- No real Airtel or MTN payout. SEP-24 stops at the Stellar test anchor.
-- Custodial keys. Lipila holds them, encrypted. This is a testnet demo, not a production wallet.
+The code paths exist. These values are not in the repo, and the app runs without them in demo mode:
+
+| What | Where it goes | What stays blocked |
+| --- | --- | --- |
+| Africa's Talking or Twilio keys | Phase 2. Not required for the hosted demo. | Live SMS. The code paths stay behind `SMS_PROVIDER`. |
+| `WALLET_ENCRYPTION_KEY` and `SESSION_SECRET` | Host env | Required in production even when `DEMO_MODE=true` and `SMS_PROVIDER=demo`. Local `next dev` can derive a throwaway key. Production and Netlify do not. |
+| `DATABASE_URL` (Supabase session pooler or any Postgres) or Netlify Database | Host env | Durable accounts and pilot feedback. Local demo uses `.data/lipila.json`. |
+| `APP_URL` | Host env | Claim links in SMS and the SEP-24 wallet URL. |
+| A Zambian SEP-24 anchor domain | `ANCHOR_HOME_DOMAIN` | Real Airtel Money / MTN MoMo payout. Until then the test anchor is the sandbox. |
+| A host (Netlify site, or any Node host) | The host's dashboard | The public URL for the five pilot testers. |
+
+## Not in this build
+
+- Live SMS is phase 2. This sprint signs in with the on-screen Demo SMS card.
+- No mainnet and no real kwacha.
+- No non-custodial wallets and no custom contracts. Lipila holds keys, encrypted.
+- No numbers outside Zambia. `+260` mobiles only.
 - The Circle faucet is attempted and may be rate-limited. The DEX path is the backup for starter USDC.
+- Sender reclaim on chain waits 7 days. The evidence run also submits one reclaim with a 5-second predicate so the operation can be shown without waiting. The app default stays 7 days.
