@@ -8,7 +8,9 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # Hosted demo. Live SMS is phase 2 and is not required to boot.
   DEMO_MODE = "true"
+  SMS_PROVIDER = "demo"
 
 [[headers]]
   for = "/*"

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { decryptSecret, encryptSecret } from "../lib/crypto";
 import { HttpError } from "../lib/errors";
 import { resetStoreForTests, getStore } from "../lib/store";
 import { requestOtp } from "../lib/service/auth";
@@ -28,9 +29,42 @@ afterEach(() => {
 describe("SMS providers", () => {
   it("stays on the on-screen demo when no provider is configured", () => {
     expect(resolveSmsProvider({ DEMO_MODE: "true" })).toBe("demo");
+    expect(resolveSmsProvider({ SMS_PROVIDER: "demo", NODE_ENV: "production", NETLIFY: "true" })).toBe("demo");
     expect(resolveSmsProvider({ DEMO_MODE: "false" })).toBe("unconfigured");
     expect(resolveSmsProvider({ SMS_PROVIDER: "africastalking", DEMO_MODE: "false" })).toBe("africastalking");
     expect(resolveSmsProvider({ SMS_PROVIDER: "twilio" })).toBe("twilio");
+  });
+
+  it("runs demo SMS in production without a provider account, and still requires wallet secrets", async () => {
+    const previous = {
+      NODE_ENV: process.env.NODE_ENV,
+      NETLIFY: process.env.NETLIFY,
+      DEMO_MODE: process.env.DEMO_MODE,
+      SMS_PROVIDER: process.env.SMS_PROVIDER,
+      WALLET_ENCRYPTION_KEY: process.env.WALLET_ENCRYPTION_KEY,
+      SESSION_SECRET: process.env.SESSION_SECRET,
+    };
+    process.env.NODE_ENV = "production";
+    process.env.NETLIFY = "true";
+    process.env.DEMO_MODE = "true";
+    process.env.SMS_PROVIDER = "demo";
+    delete process.env.AT_API_KEY;
+    delete process.env.AT_USERNAME;
+    delete process.env.TWILIO_AUTH_TOKEN;
+    process.env.WALLET_ENCRYPTION_KEY = KEY;
+    process.env.SESSION_SECRET = "production-session-secret";
+    try {
+      await expect(deliverOtp("+260971234567", "424242")).resolves.toEqual({ provider: "demo", exposeCode: true });
+      expect(decryptSecret(encryptSecret("wallet-secret"))).toBe("wallet-secret");
+      delete process.env.WALLET_ENCRYPTION_KEY;
+      delete process.env.SESSION_SECRET;
+      expect(() => encryptSecret("wallet-secret")).toThrow(/WALLET_ENCRYPTION_KEY/);
+    } finally {
+      for (const [name, value] of Object.entries(previous)) {
+        if (value === undefined) delete process.env[name];
+        else process.env[name] = value;
+      }
+    }
   });
 
   it("posts to Africa's Talking without putting the key or code in the error", async () => {

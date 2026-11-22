@@ -2,13 +2,13 @@
 
 Lipila means “pay” in Nyanja and Bemba. It is a small testnet app for Zambia: send USDC or lumens (XLM) to someone using only their phone number, on the Stellar network.
 
-It is a testnet sandbox. Nothing here is real kwacha. Sign-in can show the one-time code on screen, or send it through Africa's Talking or Twilio when those credentials are set.
+It is a testnet sandbox. Nothing here is real kwacha. Sign-in is demonstrated with a demo SMS: the one-time code is shown on screen and labelled as a preview. Live SMS, through Africa's Talking or Twilio, is phase 2 and stays behind `SMS_PROVIDER`.
 
 ## What you can do
 
 Five screens, plus the claim link a new recipient opens:
 
-1. **Sign up** with a Zambian mobile number (`+260`). In demo mode Lipila shows the one-time code on screen. With `SMS_PROVIDER=africastalking` or `twilio`, it texts the code and does not return it to the browser. The server creates a custodial testnet wallet, asks Friendbot for XLM, and opens a trustline to Circle’s testnet USDC. Secret keys are encrypted at rest and are not sent to the client.
+1. **Sign up** with a Zambian mobile number (`+260`). The hosted demo shows the one-time code in a Demo SMS card. It is not a carrier message. Live SMS delivery is phase 2 (`SMS_PROVIDER=africastalking` or `twilio`). The server creates a custodial testnet wallet, asks Friendbot for XLM, and opens a trustline to Circle’s testnet USDC. Secret keys are encrypted at rest and are not sent to the client.
 2. **Home** shows USDC and XLM, an estimated dollar value, and activity. Every on-chain row links to [stellar.expert](https://stellar.expert/explorer/testnet) testnet.
 3. **Send** a phone number, an amount, and USDC or XLM. If they already have a Lipila wallet, this is a normal Stellar payment. If they do not, Lipila creates a claimable balance they can take, and the sender can reclaim it after 7 days.
 4. **Claim** is the link in the simulated text message. The new person verifies the same phone number, Lipila creates their account with sponsored reserves (they do not need XLM to exist), and the claimable balance is claimed into it.
@@ -44,7 +44,7 @@ Every variable is listed in [`.env.example`](.env.example). Put real values in `
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-Use one line for `WALLET_ENCRYPTION_KEY` and another for `SESSION_SECRET`. Leave `SMS_PROVIDER=demo` and `DEMO_MODE=true` until Africa's Talking or Twilio credentials are available. A hosted pilot sets `SMS_PROVIDER` and the matching keys in the host's environment, not in git.
+Use one line for `WALLET_ENCRYPTION_KEY` and another for `SESSION_SECRET`. Leave `SMS_PROVIDER=demo` and `DEMO_MODE=true`. That is the hosted demo: no SMS credentials, and the code appears in the Demo SMS card. Live SMS is phase 2.
 
 ```bash
 npm run dev
@@ -72,11 +72,11 @@ In the Netlify UI (or any other host), set the variables from `.env.example`. Do
 
 Required before a public pilot:
 
-- `WALLET_ENCRYPTION_KEY` — 32-byte hex or base64
-- `SESSION_SECRET` — a long random string
+- `WALLET_ENCRYPTION_KEY` — 32-byte hex or base64. Required in production, including when SMS is in demo mode.
+- `SESSION_SECRET` — a long random string. Required in production, including when SMS is in demo mode.
 - `APP_URL` — the public site URL, used in claim links
-- `SMS_PROVIDER` — `demo` until you have a provider, then `africastalking` or `twilio`, plus that provider's keys
-- `DEMO_MODE` — `true` while the code is shown on screen. Set `false` only with a real SMS provider
+- `SMS_PROVIDER` — `demo` for this sprint. Africa's Talking and Twilio stay in the code for phase 2.
+- `DEMO_MODE` — `true` for the hosted demo. A production build starts with this set and does not need an SMS account.
 - Postgres — Netlify Database (`NETLIFY_DB_URL`, applied from `netlify/database/migrations`) or `DATABASE_URL` for Supabase or any other Postgres. Use Supabase's session pooler on port 5432. Lipila turns on TLS when the URL asks for it.
 
 `ANCHOR_HOME_DOMAIN` stays `testanchor.stellar.org` until a Zambian SEP-24 anchor is contracted. Swapping that domain is the integration change.
@@ -168,9 +168,8 @@ The code paths exist. These values are not in the repo, and the app runs without
 
 | What | Where it goes | What stays blocked |
 | --- | --- | --- |
-| Africa's Talking `AT_USERNAME`, `AT_API_KEY`, optional `AT_SENDER_ID` | Host env, or `.env.local` | Real SMS to a +260 number. Set `SMS_PROVIDER=africastalking`. |
-| Twilio `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Host env, or `.env.local` | The other SMS path. Set `SMS_PROVIDER=twilio`. |
-| `WALLET_ENCRYPTION_KEY` and `SESSION_SECRET` | Host env | Required in production. Local demo mode derives a throwaway key and refuses to do that when `NODE_ENV=production` or `NETLIFY=true`. |
+| Africa's Talking or Twilio keys | Phase 2. Not required for the hosted demo. | Live SMS. The code paths stay behind `SMS_PROVIDER`. |
+| `WALLET_ENCRYPTION_KEY` and `SESSION_SECRET` | Host env | Required in production even when `DEMO_MODE=true` and `SMS_PROVIDER=demo`. Local `next dev` can derive a throwaway key. Production and Netlify do not. |
 | `DATABASE_URL` (Supabase session pooler or any Postgres) or Netlify Database | Host env | Durable accounts and pilot feedback. Local demo uses `.data/lipila.json`. |
 | `APP_URL` | Host env | Claim links in SMS and the SEP-24 wallet URL. |
 | A Zambian SEP-24 anchor domain | `ANCHOR_HOME_DOMAIN` | Real Airtel Money / MTN MoMo payout. Until then the test anchor is the sandbox. |
@@ -178,6 +177,7 @@ The code paths exist. These values are not in the repo, and the app runs without
 
 ## Not in this build
 
+- Live SMS is phase 2. This sprint signs in with the on-screen Demo SMS card.
 - No mainnet and no real kwacha.
 - No non-custodial wallets and no custom contracts. Lipila holds keys, encrypted.
 - No numbers outside Zambia. `+260` mobiles only.

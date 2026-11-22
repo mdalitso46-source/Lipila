@@ -9,7 +9,7 @@ Fresh hashes from this run are in [`evidence/testnet-run.json`](evidence/testnet
 | What | Evidence |
 | --- | --- |
 | Zambian `+260` only | `tests/phone.test.ts`. The sign-in field is prefixed `+260`. |
-| SMS OTP, pluggable | `lib/sms/index.ts`. `SMS_PROVIDER=demo` shows the code. `africastalking` and `twilio` send it and the API does not return the code. Tests mock the HTTP call and assert the provider secret and the code are not in the error. |
+| SMS sign-in | Demonstrated in demo mode. The sign-in screen says the code is shown here and that live SMS arrives in phase 2. The code sits in a Demo SMS preview card, marked “Not a real message”. `SMS_PROVIDER=demo` is the hosted default and needs no SMS account. Africa's Talking and Twilio remain behind the env switch for phase 2. Tests mock those HTTP calls and assert the provider secret and the code are not in the error. A production process with `DEMO_MODE=true` and `SMS_PROVIDER=demo` still encrypts wallets when `WALLET_ENCRYPTION_KEY` and `SESSION_SECRET` are set, and still refuses to encrypt when they are missing. |
 | Keys encrypted at rest | AES-256-GCM in `lib/crypto.ts`. API profiles go through `publicUser`, which omits `encryptedSecret`. `tests/secrets.test.ts` redacts a Stellar secret from errors. |
 | Pay an existing account | [1 USDC](https://stellar.expert/explorer/testnet/tx/a565b506cc540a6c090f38fbbf509f2dafd6326e22d1cd8d6de2e1e3d757743a) and [2 XLM](https://stellar.expert/explorer/testnet/tx/9d6248ea3cc55f7bf1eeb286ebd15b70b0171982f45e7aa5b0de01423b9627a4) |
 | Claimable balance for a new number, 7-day sender predicate | [Create 3 XLM](https://stellar.expert/explorer/testnet/tx/67bea2086c06a7f528164c97bcdf2c03b850ab4b76f054aff3ace53a6538856b). Horizon recorded the sender predicate as `not.abs_before = 2026-11-28T20:38:11Z`, seven days after creation. |
@@ -17,7 +17,7 @@ Fresh hashes from this run are in [`evidence/testnet-run.json`](evidence/testnet
 | Sender reclaim | The app refuses reclaim until `expiresAt` (7 days). `CLAIM_WINDOW_SECONDS` is `604800`, locked by `tests/secrets.test.ts`. A second balance used a 5-second predicate only so the same `claimClaimableBalance` operation could be submitted in this run: [reclaim](https://stellar.expert/explorer/testnet/tx/06d9bb9649c8c7d21967209f476a3371f53a156585e1f7ad3475ccf582039ca2). The 7-day balance was claimed by the new wallet instead, which is the normal path. |
 | App UI, not just the script | Signed in as `+260 97 555 0191` (demo code on screen), then sent 1 XLM to `+260 96 555 0192`. [Claimable balance](https://stellar.expert/explorer/testnet/tx/01e8ce62d775ecee3646dbf60edacde2df8b6d4909ef41503d7e4ac3df61a658). The receipt says the escrow expires 28 Nov 2026. Home shows “Reclaim after 28 Nov” and does not offer the button yet. Same session also swapped 20 XLM: [swap](https://stellar.expert/explorer/testnet/tx/88e9054f63daa47068f7cf0e44f0834a2309b99a57caf287467ecda55baa092a). |
 
-Screens: [`evidence/22-login-sandbox.png`](evidence/22-login-sandbox.png), [`evidence/24-claim-receipt.png`](evidence/24-claim-receipt.png), [`evidence/23-claim-waiting.png`](evidence/23-claim-waiting.png).
+Screens: [`evidence/29-demo-sms.png`](evidence/29-demo-sms.png) (Demo SMS card), [`evidence/22-login-sandbox.png`](evidence/22-login-sandbox.png), [`evidence/24-claim-receipt.png`](evidence/24-claim-receipt.png), [`evidence/23-claim-waiting.png`](evidence/23-claim-waiting.png).
 
 ## Deliverable 2 — swap and SEP-24 cash-out
 
@@ -37,7 +37,7 @@ Screens: [`evidence/27-swap-sandbox.png`](evidence/27-swap-sandbox.png), [`evide
 | --- | --- |
 | Host config | [`netlify.toml`](netlify.toml) builds Next.js, sets Node 22, and sends security headers including HSTS. Secrets are not in that file. |
 | Postgres | `DATABASE_URL` (Supabase session pooler or any Postgres) migrates every file in `netlify/database/migrations` on startup, including `20261121183000_feedback`. `NETLIFY_DB_URL` is applied by Netlify’s own migration runner (`autoMigrate: false`). TLS is turned on when the URL asks for it or the host is Supabase. |
-| SMS | Provider switch in `lib/sms/index.ts`. Documented in [`.env.example`](.env.example). Unit tests cover Africa's Talking and Twilio request shapes with a fake transport. No live SMS was sent: those accounts are not in this environment. |
+| SMS | This sprint uses demo mode. The hosted default is `SMS_PROVIDER=demo` and `DEMO_MODE=true`, including in a production build, with no SMS credentials. Live delivery is phase 2. The Africa's Talking and Twilio functions stay in `lib/sms/index.ts` and are covered by mocked tests. |
 | Pilot feedback | `POST /api/feedback` stores a signed-in note. `tests/store.test.ts` writes one note for each of five phone numbers. The browser walkthrough saved a real note for `+260 97 555 0191` (“Sending to a new number was clear…”) in the local file store. Screenshot: [`evidence/25-feedback.png`](evidence/25-feedback.png). |
 | Demo recording | Checklist for a 2–3 minute video: [`docs/DEMO-SCRIPT.md`](docs/DEMO-SCRIPT.md). |
 | Health | `GET /api/health` reports `network: testnet`, the SMS provider name, and whether Postgres is configured. It does not return secrets. |
@@ -50,12 +50,11 @@ Screens: [`evidence/27-swap-sandbox.png`](evidence/27-swap-sandbox.png), [`evide
 
 | Credential | Where | Until it is set |
 | --- | --- | --- |
-| `AT_USERNAME`, `AT_API_KEY`, optional `AT_SENDER_ID` | Host env. `SMS_PROVIDER=africastalking` | No live Africa's Talking SMS. Demo mode shows the code instead. |
-| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` | Host env. `SMS_PROVIDER=twilio` | No live Twilio SMS. |
-| `WALLET_ENCRYPTION_KEY`, `SESSION_SECRET` | Host env | Production refuses to boot without them. Local demo derives a throwaway key only when `NODE_ENV` is not production and `NETLIFY` is not set. |
+| Africa's Talking or Twilio credentials | Phase 2. Not required to run or host the demo. | Live SMS. Demo mode shows the code in the preview card. |
+| `WALLET_ENCRYPTION_KEY`, `SESSION_SECRET` | Host env | Still required in production when `DEMO_MODE=true` and `SMS_PROVIDER=demo`. Local `next dev` derives a throwaway key only when `NODE_ENV` is not production and `NETLIFY` is not set. |
 | `DATABASE_URL` or Netlify Database | Host env | Local demo uses gitignored `.data/lipila.json`. A public pilot needs Postgres so five testers share one database. |
 | `APP_URL` | Host env | Claim links and the SEP-24 `wallet_url` use the request host locally. |
 | `ANCHOR_HOME_DOMAIN` for a Zambian SEP-24 anchor | Host env | Cash-out stops at `testanchor.stellar.org`. It does not pay Airtel Money or MTN MoMo. |
 | A public host | Netlify (already configured) or any Node host | The app is ready to deploy. This environment has no Netlify or Supabase credentials, so it was not published. |
 
-Out of scope, and not built: mainnet, real kwacha, non-custodial wallets, custom contracts, numbers outside Zambia.
+Out of scope, and not built: mainnet, real kwacha, non-custodial wallets, custom contracts, numbers outside Zambia. Live SMS delivery is phase 2.

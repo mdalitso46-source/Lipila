@@ -4,7 +4,7 @@ Record on Stellar testnet. Say out loud that every payment is sandbox money, not
 
 Before you start:
 
-- [ ] `DEMO_MODE=true` if SMS credentials are not loaded, or a real `SMS_PROVIDER` if they are.
+- [ ] `SMS_PROVIDER=demo` and `DEMO_MODE=true`. The code appears on screen. Live SMS is phase 2, so no Africa's Talking or Twilio account is needed.
 - [ ] `WALLET_ENCRYPTION_KEY` and `SESSION_SECRET` are set in the host, not in the repo.
 - [ ] Two Zambian numbers ready: one that already signed in, one that has not.
 - [ ] The signed-in wallet holds a little test USDC and test XLM (Friendbot plus the starter swap).
@@ -12,7 +12,7 @@ Before you start:
 | Time | Do this | Say this |
 | --- | --- | --- |
 | 0:00 | Landing page. Point at the eagle and “Testnet sandbox”. | Lipila sends USDC or lumens to a Zambian phone number. This is Stellar testnet. |
-| 0:20 | Sign in with `+260`. If demo mode is on, the code is on screen. If SMS is configured, read it from the phone. | Sign-in is a one-time code. The wallet key stays on the server, encrypted. |
+| 0:20 | Sign in with `+260`. Point at the Demo SMS card and read the code from it. | This is a demo preview, not a text message. Live SMS delivery arrives in phase 2. The wallet key stays on the server, encrypted. |
 | 0:40 | Home. Show USDC, XLM, and Activity. | Balances are test assets. Each row links to stellar.expert. |
 | 1:00 | Send a small amount to the number that already has a wallet. Open the receipt and the expert link. | An existing user gets a normal Stellar payment. |
 | 1:25 | Send to the new number. Show the claim link and the 7-day note. | A new number gets a claimable balance. The sender can take it back after 7 days. |
