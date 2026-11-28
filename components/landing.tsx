@@ -5,8 +5,9 @@ import { Wordmark } from "./logo";
 export function Landing() {
   return (
     <div className="landing" data-screen="landing">
+      <div className="landing-copy">
       <Wordmark inverse size={32} />
-      <p className="kicker" style={{ marginTop: 28 }}>
+      <p className="kicker">
         Zambia · Stellar
       </p>
       <h1>
@@ -26,6 +27,7 @@ export function Landing() {
         <span>Testnet sandbox</span>
       </div>
       <SandboxNotice tone="dark" />
+      </div>
       <div className="stage-card" aria-hidden="true">
         <div className="card-back" />
         <div className="balance wallet-card">
@@ -49,12 +51,14 @@ export function Landing() {
           </div>
         </div>
       </div>
+      <div className="landing-actions">
       <Link className="btn light" href="/login">
         Continue with your number
       </Link>
       <p className="signin-line">
         Already have a wallet? <Link href="/login">Sign in</Link>
       </p>
+      </div>
     </div>
   );
 }

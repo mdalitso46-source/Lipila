@@ -20,7 +20,7 @@
 }
 
 * { box-sizing: border-box; }
-html, body { min-height: 100%; }
+html, body { min-height: 100%; overflow-x: hidden; }
 body {
   margin: 0;
   background: #e7ebe8;
@@ -52,13 +52,15 @@ img.mark { display: block; }
 }
 
 .app {
-  width: min(430px, 100%);
+  width: min(100%, 100%);
   min-height: 100dvh;
   background: var(--stone);
   display: flex;
   flex-direction: column;
 }
-.scroll { flex: 1; overflow: auto; padding: 16px 18px 28px; }
+.workspace { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 100dvh; }
+.rail { display: none; }
+.scroll { flex: 1; min-height: 0; overflow: auto; padding: 16px 18px 28px; }
 
 .wordmark {
   display: inline-flex;
@@ -324,11 +326,12 @@ img.mark { display: block; }
   backdrop-filter: blur(16px);
 }
 .nav a {
-  width: 72px;
+  flex: 1;
+  min-width: 0;
   text-align: center;
   text-decoration: none;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 650;
   padding: 6px 0 4px;
   border-radius: 14px;
@@ -683,18 +686,17 @@ textarea.code-input { resize: vertical; }
 .field > span { font-size: 13px; font-weight: 650; color: #3a4741; }
 
 .landing {
-  width: min(430px, 100%);
+  width: min(100%, 100%);
   min-height: 100dvh;
   color: #f7f8f6;
   padding: 22px 22px 28px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   background:
     radial-gradient(90% 70% at 80% 0%, rgba(212, 122, 70, 0.22), transparent 55%),
     radial-gradient(80% 60% at 0% 100%, rgba(28, 106, 78, 0.4), transparent 60%),
     linear-gradient(165deg, #0c241c, #081c15 46%, #06140f);
 }
-.landing .kicker { color: var(--copper-soft); letter-spacing: 0.16em; }
+.landing .kicker { color: var(--copper-soft); letter-spacing: 0.16em; margin-top: 22px; }
 .landing h1 {
   font-size: 40px;
   line-height: 1.02;
@@ -729,7 +731,28 @@ textarea.code-input { resize: vertical; }
 .signin-line { text-align: center; margin-top: 14px; color: rgba(247, 248, 246, 0.55); font-size: 13px; }
 .signin-line a { color: #f7f8f6; font-weight: 700; }
 
-.empty { text-align: center; color: var(--muted); padding: 18px 8px; }
+.empty {
+  text-align: center;
+  color: var(--muted);
+  margin: 8px 0 12px;
+  padding: 22px 14px;
+  border-radius: 16px;
+  background: #f3f6f4;
+}
+.panel {
+  background: white;
+  border-radius: 20px;
+  padding: 6px 14px 8px;
+  box-shadow: 0 10px 28px rgba(15, 28, 23, 0.05), inset 0 0 0 1px rgba(15, 28, 23, 0.06);
+}
+.dash { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.landing {
+  display: grid;
+  grid-template-areas: "copy" "stage" "actions";
+}
+.landing-copy { grid-area: copy; }
+.landing .stage-card { grid-area: stage; }
+.landing-actions { grid-area: actions; }
 .skel {
   border-radius: 12px;
   background: linear-gradient(90deg, #e6ebe7, #f7f8f6, #e6ebe7);
@@ -738,16 +761,69 @@ textarea.code-input { resize: vertical; }
 }
 
 @media (min-width: 880px) {
-  .canvas { align-items: flex-start; padding: 28px 16px; }
-  .app, .gate, .landing {
-    margin-top: 0;
-    height: calc(100dvh - 56px);
-    min-height: 640px;
+  .canvas { align-items: stretch; padding: 24px; }
+  .app {
+    width: min(1080px, 100%);
+    height: calc(100dvh - 48px);
+    min-height: 680px;
+    margin: 0 auto;
+    flex-direction: row;
     border-radius: 28px;
     overflow: hidden;
     box-shadow: 0 24px 60px rgba(8, 28, 21, 0.18);
   }
-  .landing { height: auto; min-height: calc(100dvh - 56px); }
+  .workspace { min-height: 0; height: 100%; }
+  .rail {
+    display: flex;
+    flex-direction: column;
+    width: 228px;
+    flex: none;
+    padding: 24px 16px 20px;
+    background:
+      radial-gradient(80% 40% at 0% 0%, rgba(212, 122, 70, 0.28), transparent 60%),
+      #081c15;
+    color: #f7f8f6;
+  }
+  .rail .wordmark { color: #f7f8f6; }
+  .rail-nav { display: flex; flex-direction: column; gap: 4px; margin-top: 22px; }
+  .rail-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    color: rgba(247, 248, 246, 0.74);
+    text-decoration: none;
+    font-weight: 650;
+    font-size: 14px;
+  }
+  .rail-nav a svg { flex: none; }
+  .rail-nav a[aria-current="page"] { background: rgba(255, 255, 255, 0.1); color: #fff; }
+  .rail-foot { margin-top: auto; color: #f3d4c2; font-size: 12px; font-weight: 700; line-height: 1.4; }
+  .nav { display: none; }
+  .scroll { padding: 28px 32px 36px; }
+  .dash { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.9fr); gap: 22px; align-items: stretch; }
+  .panel { min-height: 100%; }
+  .gate {
+    width: min(460px, calc(100% - 48px));
+    margin: 40px auto;
+    min-height: auto;
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(8, 28, 21, 0.16);
+  }
+  .landing {
+    width: min(1040px, calc(100% - 48px));
+    margin: 24px auto;
+    min-height: calc(100dvh - 48px);
+    border-radius: 28px;
+    padding: 40px 44px;
+    grid-template-columns: 1.05fr 0.95fr;
+    grid-template-areas: "copy stage" "actions stage";
+    align-items: center;
+    column-gap: 36px;
+    box-shadow: 0 24px 60px rgba(8, 28, 21, 0.22);
+  }
+  .landing .stage-card { min-height: 320px; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -756,8 +832,17 @@ textarea.code-input { resize: vertical; }
   .pills span { animation: rise 520ms ease both; }
   .pills span:nth-child(2) { animation-delay: 80ms; }
   .pills span:nth-child(3) { animation-delay: 160ms; }
-  .btn, .act, .nav a, .seg button { transition: transform 160ms ease, background 160ms ease; }
+  .btn, .act i, .nav a, .seg button, .providers button, .tx, .rail-nav a, .chips button, .rating button {
+    transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease, color 160ms ease;
+  }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(14, 59, 46, 0.18); }
+  .btn.secondary:hover, .btn.light:hover { box-shadow: 0 8px 18px rgba(15, 28, 23, 0.08); }
   .btn:active, .act:active { transform: translateY(1px); }
+  .act:hover i { transform: translateY(-2px); }
+  .tx:hover { background: rgba(14, 59, 46, 0.035); }
+  .providers button:hover { transform: translateY(-1px); }
+  .nav a:hover, .rail-nav a:hover { color: var(--forest-1); }
+  .rail-nav a:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
   .skel { animation: shimmer 1.3s linear infinite; }
 }
 @media (prefers-reduced-motion: reduce) {

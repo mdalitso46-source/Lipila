@@ -134,7 +134,8 @@ export default function HomePage() {
 
   return (
     <Shell>
-      <main data-screen="home">
+      <main className="dash" data-screen="home">
+        <div className="dash-main">
         <header className="home-head">
           <div>
             <div className="hello">Muli bwanji</div>
@@ -218,6 +219,8 @@ export default function HomePage() {
         ) : (
           <div id="pending" />
         )}
+        </div>
+        <section className="panel">
         <div className="section-h">Activity</div>
         {home && home.activities.length === 0 ? <div className="empty">Payments you send will show up here.</div> : null}
         {home?.activities.map((item) => {
@@ -253,6 +256,7 @@ export default function HomePage() {
             <span>View</span>
           </a>
         ) : null}
+        </section>
       </main>
     </Shell>
   );
