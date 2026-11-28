@@ -77,7 +77,7 @@ export default function ClaimPage() {
     <main className="gate" data-screen="claim">
       <Wordmark />
       <SandboxNotice />
-      <p className="kicker" style={{ color: "#c86d3b", marginTop: 28 }}>Claim · testnet sandbox</p>
+      <p className="kicker gate-kicker">Claim · testnet sandbox</p>
       {!claim && !error ? (
         <div aria-busy="true" style={{ marginTop: 18 }}>
           <div className="skel" style={{ height: 48, width: "55%" }} />
@@ -106,7 +106,7 @@ export default function ClaimPage() {
           <Link className="btn" href="/">Go to Lipila</Link>
         </div>
       ) : claim?.status === "open" ? (
-        <form className="stack" style={{ marginTop: 18 }} onSubmit={sent ? verify : requestCode}>
+        <form className="stack" onSubmit={sent ? verify : requestCode}>
           <PhoneField value={national} onChange={setNational} label="Your number" />
           <OtpEntry sent={sent} demoCode={demoCode} code={code} onChange={setCode} />
           {error ? <p className="error">{error}</p> : null}

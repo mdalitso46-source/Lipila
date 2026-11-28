@@ -64,7 +64,7 @@ export default function SwapPage() {
   return (
     <Shell>
       <main data-screen="swap">
-        <div className="page-title" style={{ marginBottom: 10 }}>Move money</div>
+        <div className="page-title">Move money</div>
         <div className="tabs">
           <Link href="/cashout">Cash out</Link>
           <Link href="/swap" aria-current="page">Swap</Link>
@@ -75,26 +75,28 @@ export default function SwapPage() {
             <SandboxNotice />
             <div className="ring"><Check size={26} /></div>
             <div className="kicker">Sandbox swap</div>
-            <h2 className="tnum" style={{ fontSize: 28 }}>
+            <h2 className="tnum status-figure">
               {grouped(result.sourceAmount, 2)} {result.from} → {grouped(result.destinationAmount, 2)} {result.to}
             </h2>
             <p className="note">Quoted rate was 1 {result.from} ≈ {result.rate} {result.to}. The explorer shows the amount that landed.</p>
-            <a className="btn" href={result.expertUrl} style={{ marginTop: 12 }}>View on stellar.expert</a>
-            <button className="btn secondary" type="button" style={{ marginTop: 8 }} onClick={() => setResult(null)}>
-              Done
-            </button>
+            <div className="stack">
+              <a className="btn" href={result.expertUrl}>View on stellar.expert</a>
+              <button className="btn secondary" type="button" onClick={() => setResult(null)}>
+                Done
+              </button>
+            </div>
           </section>
         ) : (
-          <form onSubmit={submit}>
-            <div className="send-card" style={{ marginTop: 12 }}>
+          <form className="flow" onSubmit={submit}>
+            <div className="send-card">
               <div className="k">You swap</div>
-              <input className="amount-input tnum" style={{ textAlign: "left", fontSize: 40 }} inputMode="decimal" aria-label="Amount" value={amount} onChange={(event) => { setAmount(event.target.value); setQuote(null); }} />
+              <input className="amount-input left tnum" inputMode="decimal" aria-label="Amount" value={amount} onChange={(event) => { setAmount(event.target.value); setQuote(null); }} />
               <div className="note">{from}</div>
             </div>
-            <div className="get-card" style={{ marginTop: 10 }}>
+            <div className="get-card">
               <div className="k">You receive about</div>
               <div className="money tnum">{quote ? grouped(quote.destinationDisplay, 2) : "—"} {to}</div>
-              <div className="note" style={{ color: "rgba(247,248,246,.7)" }}>{quote ? quote.summary : "Show the testnet rate before you swap."}</div>
+              <div className="note">{quote ? quote.summary : "Show the testnet rate before you swap."}</div>
             </div>
             <div className="fee-row"><span>Network fee</span><b>Paid in XLM</b></div>
             {error ? <p className="error">{error}</p> : null}

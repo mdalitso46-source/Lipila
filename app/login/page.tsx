@@ -52,14 +52,14 @@ export default function LoginPage() {
     <main className="gate" data-screen="login">
       <Wordmark />
       <SandboxNotice />
-      <p className="kicker" style={{ color: "#c86d3b", marginTop: 28 }}>
+      <p className="kicker gate-kicker">
         Zambia · Stellar testnet
       </p>
       <h1 className="display">Pay with a phone number.</h1>
       <p className="note">
         Lipila sends USDC or lumens to any Zambian mobile number. New numbers get a claim link. No app install on the other side.
       </p>
-      <form className="stack" onSubmit={sent ? verify : requestCode} style={{ marginTop: 22 }}>
+      <form className="stack" onSubmit={sent ? verify : requestCode}>
         <PhoneField value={national} onChange={setNational} />
         <OtpEntry sent={sent} demoCode={demoCode} code={code} onChange={setCode} />
         {error ? <p className="error">{error}</p> : null}

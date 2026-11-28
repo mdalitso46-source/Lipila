@@ -67,7 +67,7 @@ export default function CashoutPage() {
   return (
     <Shell>
       <main data-screen="cashout">
-        <div className="page-title" style={{ marginBottom: 10 }}>Move money</div>
+        <div className="page-title">Move money</div>
         <div className="tabs">
           <Link href="/cashout" aria-current="page">Cash out</Link>
           <Link href="/swap">Swap</Link>
@@ -76,11 +76,11 @@ export default function CashoutPage() {
           Airtel Money and MTN MoMo are the labels for a sandbox SEP-24 withdrawal. The anchor ({flow?.anchorDomain || "testanchor.stellar.org"}) stands in for a Zambian mobile-money partner. Nothing here pays real kwacha.
         </p>
         {flow ? (
-          <section className="card stack" style={{ marginTop: 14, padding: 16 }} data-screen="cashout-status">
+          <section className="card stack status-card" data-screen="cashout-status">
             <SandboxNotice />
             <span className={flow.done ? "tag" : "tag wait"}>{flow.done ? "Completed" : (flow.status || "In progress").replaceAll("_", " ")}</span>
             <strong>{flow.providerName}</strong>
-            <span className="tnum" style={{ fontSize: 36, fontWeight: 700 }}>{grouped(flow.amount, 2)} {flow.asset}</span>
+            <span className="tnum status-figure">{grouped(flow.amount, 2)} {flow.asset}</span>
             {flow.mode === "demo" ? (
               <>
                 <p className="error">Test anchor did not start. This is a labelled demo of the cash-out step.</p>
@@ -100,8 +100,8 @@ export default function CashoutPage() {
             <button className="btn secondary" type="button" onClick={() => setFlow(null)}>Start over</button>
           </section>
         ) : (
-          <form onSubmit={submit}>
-            <div className="providers" style={{ marginTop: 14 }}>
+          <form className="flow" onSubmit={submit}>
+            <div className="providers">
               <button type="button" aria-pressed={provider === "airtel"} onClick={() => setProvider("airtel")}>
                 <div className="mark-a">A</div>
                 <strong>Airtel Money</strong>
@@ -118,17 +118,17 @@ export default function CashoutPage() {
                 <span>Not on this anchor</span>
               </button>
             </div>
-            <div className="send-card" style={{ marginTop: 12 }}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <div className="send-card">
+              <div className="head-side">
                 <div className="k">You send</div>
                 <button className="asset-chip" type="button" onClick={() => setAsset(asset === "USDC" ? "XLM" : "USDC")}>{asset}</button>
               </div>
-              <input className="amount-input tnum" style={{ textAlign: "left", fontSize: 40 }} inputMode="decimal" aria-label="Amount (1 to 10, test anchor limit)" value={amount} onChange={(event) => setAmount(event.target.value)} />
+              <input className="amount-input left tnum" inputMode="decimal" aria-label="Amount (1 to 10, test anchor limit)" value={amount} onChange={(event) => setAmount(event.target.value)} />
             </div>
-            <div className="get-card" style={{ marginTop: 10 }}>
+            <div className="get-card">
               <div className="k">Anchor receives</div>
               <div className="money tnum">{grouped(amount || "0", 2)} {asset}</div>
-              <div style={{ opacity: 0.75, fontSize: 13 }}>To {providerName}{phone ? ` · ${phone}` : ""} · testnet only</div>
+              <div className="note">To {providerName}{phone ? ` · ${phone}` : ""} · testnet only</div>
             </div>
             <div className="fee-row"><span>Rate</span><b>Set by the test anchor</b></div>
             <div className="fee-row"><span>Network fee</span><b>Paid in XLM</b></div>
@@ -139,7 +139,7 @@ export default function CashoutPage() {
               </div>
             </Link>
             {error ? <p className="error">{error}</p> : null}
-            <button className="btn" disabled={busy} type="submit" style={{ marginTop: 12 }}>
+            <button className="btn" disabled={busy} type="submit">
               {busy ? "Talking to the anchor…" : `Cash out to ${providerName}`}
             </button>
           </form>

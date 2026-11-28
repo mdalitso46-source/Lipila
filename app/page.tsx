@@ -134,13 +134,14 @@ export default function HomePage() {
 
   return (
     <Shell>
-      <main data-screen="home">
+      <main className="dash" data-screen="home">
+        <div className="dash-main">
         <header className="home-head">
           <div>
             <div className="hello">Muli bwanji</div>
             <b>Your wallet</b>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div className="head-side">
             <Link href="/feedback" className="feedback-link">Feedback</Link>
             <span className="avatar tnum">{initials(home?.user.phone || home?.phoneDisplay)}</span>
           </div>
@@ -189,7 +190,7 @@ export default function HomePage() {
           </Link>
         </div>
         {open.length ? (
-          <div id="pending" className="stack" style={{ marginTop: 16 }}>
+          <div id="pending" className="stack loose">
             {open.map((claim) => {
               const ready = now > 0 && new Date(claim.expiresAt).getTime() <= now;
               return (
@@ -208,7 +209,7 @@ export default function HomePage() {
                       </button>
                     ) : null}
                   </div>
-                  <a className="tnum" href={claim.txHash ? expertTx(claim.txHash) : "#pending"}>
+                  <a className="banner-amt tnum" href={claim.txHash ? expertTx(claim.txHash) : "#pending"}>
                     {grouped(claim.amount, 2)} {claim.asset}
                   </a>
                 </div>
@@ -218,6 +219,8 @@ export default function HomePage() {
         ) : (
           <div id="pending" />
         )}
+        </div>
+        <section className="panel">
         <div className="section-h">Activity</div>
         {home && home.activities.length === 0 ? <div className="empty">Payments you send will show up here.</div> : null}
         {home?.activities.map((item) => {
@@ -253,6 +256,7 @@ export default function HomePage() {
             <span>View</span>
           </a>
         ) : null}
+        </section>
       </main>
     </Shell>
   );
