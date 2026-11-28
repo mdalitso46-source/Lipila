@@ -68,7 +68,9 @@ export default function FeedbackPage() {
         <p className="note">
           Notes from this signed-in number are stored for the pilot. They are not payments, and nothing here moves real kwacha.
         </p>
-        <form className="stack" onSubmit={submit} style={{ marginTop: 14 }}>
+        <form className="stack loose" onSubmit={submit}>
+          <div className="field">
+            <span>Topic</span>
           <div className="chips" role="group" aria-label="Topic">
             {AREAS.map((item) => (
               <button key={item.id} type="button" aria-pressed={area === item.id} onClick={() => setArea(item.id)}>
@@ -76,12 +78,16 @@ export default function FeedbackPage() {
               </button>
             ))}
           </div>
+          </div>
+          <div className="field">
+            <span>Rating</span>
           <div className="rating" role="group" aria-label="Rating">
             {[1, 2, 3, 4, 5].map((value) => (
               <button key={value} type="button" aria-pressed={rating === value} onClick={() => setRating(value)}>
                 {value}
               </button>
             ))}
+          </div>
           </div>
           <label className="field">
             <span>What should we change?</span>
